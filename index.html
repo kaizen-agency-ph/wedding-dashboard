@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign In — Wedding Planning Dashboard</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>Wedding Planning Dashboard</h1>
+      <p class="sub">Sign in with the account your planner gave you.</p>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
+        <div class="error" id="error"></div>
+        <button class="btn" type="submit" style="width:100%">Sign In</button>
+      </form>
+      <p class="hint" style="margin-top:16px">Don't have an account? Ask your admin to add you — accounts aren't self-serve.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { login, checkAccess, auth } from "./js/auth.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const form = document.getElementById("login-form");
+    const errorEl = document.getElementById("error");
+
+    // If already logged in and allowed, skip straight to dashboard.
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const access = await checkAccess(user);
+        if (access) window.location.href = "dashboard.html";
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.textContent = "";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        const cred = await login(email, password);
+        const access = await checkAccess(cred.user);
+        if (!access) {
+          errorEl.textContent = "This account exists but hasn't been granted access yet. Contact your admin.";
+          await auth.signOut();
+          return;
+        }
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        errorEl.textContent = "Sign-in failed. Check your email and password.";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

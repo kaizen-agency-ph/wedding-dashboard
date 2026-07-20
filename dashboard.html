@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wedding Planning Dashboard</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Wedding Dashboard<small id="user-email">loading…</small></div>
+    <nav>
+      <a href="#" id="admin-link" style="display:none">Admin Panel</a>
+      <a href="#" id="logout-link">Sign Out</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <div class="summary-grid">
+      <div class="stat"><div class="label">Checklist done</div><div class="value" id="stat-checklist">0/0</div></div>
+      <div class="stat"><div class="label">Budget spent</div><div class="value" id="stat-spent">₱0</div></div>
+      <div class="stat"><div class="label">Budget remaining</div><div class="value" id="stat-remaining">₱0</div></div>
+      <div class="stat"><div class="label">Guests confirmed</div><div class="value" id="stat-guests">0/0</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-panel="checklist">Checklist</div>
+      <div class="tab" data-panel="budget">Budget</div>
+      <div class="tab" data-panel="guests">Guest List</div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="panel active" id="panel-checklist">
+      <div class="card">
+        <div class="row">
+          <input type="text" id="checklist-input" placeholder="Add a to-do, e.g. Book photographer" />
+          <input type="date" id="checklist-date" style="max-width:160px" />
+          <button class="btn" id="checklist-add">Add</button>
+        </div>
+        <table>
+          <thead><tr><th></th><th>Task</th><th>Due</th><th></th></tr></thead>
+          <tbody id="checklist-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="panel" id="panel-budget">
+      <div class="card">
+        <div class="row">
+          <input type="text" id="budget-item" placeholder="Item, e.g. Catering" />
+          <input type="number" id="budget-amount" placeholder="Amount (₱)" style="max-width:160px" />
+          <select id="budget-status" style="max-width:140px">
+            <option value="planned">Planned</option>
+            <option value="paid">Paid</option>
+          </select>
+          <button class="btn" id="budget-add">Add</button>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody id="budget-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GUESTS -->
+    <div class="panel" id="panel-guests">
+      <div class="card">
+        <div class="row">
+          <input type="text" id="guest-name" placeholder="Guest name" />
+          <select id="guest-status" style="max-width:160px">
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="declined">Declined</option>
+          </select>
+          <button class="btn" id="guest-add">Add</button>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>RSVP</th><th></th></tr></thead>
+          <tbody id="guests-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <span class="saved-tag" id="saved-tag">Saved ✓</span>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

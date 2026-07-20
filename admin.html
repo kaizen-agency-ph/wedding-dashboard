@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel — Wedding Planning Dashboard</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Admin Panel<small id="user-email">loading…</small></div>
+    <nav>
+      <a href="dashboard.html">Back to Dashboard</a>
+      <a href="#" id="logout-link">Sign Out</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h3 style="margin-top:0">Add a new user</h3>
+      <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — have them change the password after first login (there's no self-service reset page in this build).</p>
+      <div class="row">
+        <input type="email" id="new-email" placeholder="Email" />
+        <input type="text" id="new-password" placeholder="Temporary password (6+ chars)" />
+        <select id="new-role" style="max-width:140px">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button class="btn" id="create-user">Create</button>
+      </div>
+      <div class="error" id="create-error"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">People with access</h3>
+      <p class="hint">"Revoke" removes their dashboard access immediately. It does not delete their login credentials (that requires the Firebase Admin SDK, which this static-hosted build doesn't have) — so keep passwords private, and treat revoke as "locked out of the app," not "account destroyed."</p>
+      <table>
+        <thead><tr><th>Email</th><th>Role</th><th>Added</th><th></th></tr></thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
