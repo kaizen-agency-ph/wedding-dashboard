@@ -28,11 +28,26 @@
     const form = document.getElementById("login-form");
     const errorEl = document.getElementById("error");
 
+    // Sends an authenticated, allowed user to their dashboard. If the role
+    // doesn't match a known page, homeForRole() falls back to "index.html" —
+    // redirecting there while already ON index.html would just reload this
+    // same page forever. Guard against that explicitly instead of looping.
+    async function goToDashboard(user, access) {
+      const dest = homeForRole(access.role);
+      if (dest === "index.html") {
+        console.error('Unrecognized role "' + access.role + '" for this account.');
+        errorEl.textContent = 'This account has an unrecognized role ("' + access.role + '"). Ask your admin to check it in Firestore — it must be exactly "admin", "couple", or "coordinator" with no extra spaces.';
+        await auth.signOut();
+        return;
+      }
+      window.location.href = dest;
+    }
+
     // If already logged in and allowed, skip straight to their dashboard.
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const access = await checkAccess(user);
-        if (access) window.location.href = homeForRole(access.role);
+        if (access) await goToDashboard(user, access);
       }
     });
 
@@ -49,7 +64,7 @@
           await auth.signOut();
           return;
         }
-        window.location.href = homeForRole(access.role);
+        await goToDashboard(cred.user, access);
       } catch (err) {
         errorEl.textContent = "Sign-in failed. Check your email and password.";
         console.error(err);
