@@ -1,5 +1,18 @@
 # Setup Guide — Wedding Planning Dashboard (GitHub Pages + Firebase)
 
+## Account types
+
+Every account has a `role` of `couple`, `coordinator`, or `admin`, set when an admin creates the account in the Admin Panel. After login, the app routes automatically:
+
+- `couple` → `couple.html` (single-wedding planner: budget, checklist, vendors, seating)
+- `coordinator` → `coordinator.html` (multi-wedding dashboard for managing several clients)
+- `admin` → `admin.html` (add/revoke logins only — no planning UI)
+
+If a couple account somehow lands on `coordinator.html` (or vice versa) — e.g. by guessing the URL — the app checks their role and bounces them to their correct page automatically.
+
+Note: `couple.html` and `coordinator.html` save their wedding planning data in the browser's `localStorage`, not in Firestore. Firestore's only job is the login gate (deciding who gets in and which role they have) — it doesn't store checklist/budget/guest data. That means each device keeps its own copy of the data; there's no cross-device sync built in yet.
+
+
 This app is static (HTML/CSS/JS) so GitHub Pages can host it for free. Login and the admin panel run on Firebase, also free at this scale (Spark plan). Follow these steps in order — steps 1-4 happen once, before anything goes live.
 
 ## 1. Create the Firebase project

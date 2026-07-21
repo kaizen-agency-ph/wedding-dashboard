@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wedding Planner</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.wp { --ink:#3A2E3F; --ink-soft:#7A6B79; --paper:#FBF5F4; --card:#FFFFFF;
+  --line:#EBDDD8; --rose:#A8657C; --rose-deep:#8C4F66; --rose-soft:#F5E7EC;
+  --sage:#6F8676; --sage-soft:#E6EDE7; --gold:#B8902F;
+  background:var(--paper); color:var(--ink); font-family:'Outfit',system-ui,sans-serif;
+  min-height:100vh; -webkit-font-smoothing:antialiased; line-height:1.45; }
+.wp *{ box-sizing:border-box; }
+.wp-wrap{ max-width:1040px; margin:0 auto; padding:28px 20px 64px; }
+
+.wp .eyebrow{ font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--rose); font-weight:600; }
+.wp .serif{ font-family:'Fraunces',Georgia,serif; }
+
+/* Header */
+.wp-head{ position:relative; padding:26px 26px 24px; border:1px solid var(--line);
+  border-radius:20px; background:linear-gradient(180deg,#fff, #FCF7F5);
+  box-shadow:0 1px 0 rgba(58,46,63,.02); overflow:hidden; }
+.wp-head h1{ font-family:'Fraunces',Georgia,serif; font-weight:400; margin:6px 0 4px;
+  font-size:clamp(28px,6vw,46px); line-height:1.04; letter-spacing:-.01em; }
+.wp-head .amp{ color:var(--rose); font-style:italic; padding:0 .12em; }
+.wp-head .sub{ color:var(--ink-soft); font-size:14px; }
+.wp-headbg{ position:absolute; inset:0; z-index:0; overflow:hidden; }
+.wp-headbg img{ width:100%; height:100%; object-fit:cover; display:block; transform-origin:center; }
+.wp-headveil{ position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(90deg, rgba(251,245,244,.96) 0%, rgba(251,245,244,.9) 50%, rgba(251,245,244,.45) 78%, rgba(251,245,244,.15) 100%); }
+.wp-head .eyebrow, .wp-head h1, .wp-head .sub{ position:relative; z-index:2; }
+.wp-bgprev{ width:132px; height:60px; border-radius:10px; overflow:hidden; border:1px solid var(--line); flex:none; }
+.wp-bgprev img{ width:100%; height:100%; object-fit:cover; display:block; }
+.wp-slider{ display:flex; align-items:center; gap:12px; margin-top:10px; }
+.wp-slider > span{ font-size:12px; color:var(--ink-soft); width:130px; flex:none; }
+.wp-range{ -webkit-appearance:none; appearance:none; flex:1; height:5px; border-radius:999px;
+  background:var(--rose-soft); outline:none; padding:0; }
+.wp-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:18px; height:18px;
+  border-radius:50%; background:var(--rose-deep); cursor:pointer; border:2px solid #fff; box-shadow:0 1px 3px rgba(58,46,63,.3); }
+.wp-range::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:var(--rose-deep);
+  cursor:pointer; border:2px solid #fff; }
+
+/* Nav */
+.wp-nav{ display:flex; gap:6px; margin:18px 0 22px; flex-wrap:wrap; }
+.wp-nav button{ font:inherit; font-size:13px; font-weight:500; cursor:pointer;
+  border:1px solid var(--line); background:var(--card); color:var(--ink-soft);
+  padding:9px 16px; border-radius:999px; transition:all .18s ease; }
+.wp-nav button:hover{ color:var(--ink); border-color:#DCC9C3; }
+.wp-nav button[aria-current="true"]{ background:var(--ink); color:#fff;
+  border-color:var(--ink); }
+
+/* View animation */
+.wp-view{ animation:wp-fade .32s ease both; }
+@keyframes wp-fade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+/* Cards & grid */
+.wp-card{ background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:22px; }
+.wp-grid{ display:grid; gap:16px; }
+.cols-2{ grid-template-columns:repeat(2,1fr); }
+.cols-3{ grid-template-columns:repeat(3,1fr); }
+.cols-4{ grid-template-columns:repeat(4,1fr); }
+
+/* Hero countdown */
+.wp-hero{ text-align:center; padding:34px 22px; }
+.wp-count{ font-family:'Fraunces',Georgia,serif; color:var(--gold); font-weight:300;
+  font-size:clamp(56px,16vw,108px); line-height:.92; letter-spacing:-.02em; }
+.wp-rule{ width:64px; height:2px; background:var(--gold); margin:14px auto 0;
+  border-radius:2px; opacity:.7; }
+.wp-count-lbl{ color:var(--ink-soft); font-size:13px; margin-top:14px; letter-spacing:.04em; }
+
+/* Stat */
+.wp-stat .n{ font-family:'Fraunces',Georgia,serif; font-size:30px; font-weight:400;
+  line-height:1; margin-top:8px; }
+.wp-stat .l{ font-size:12px; color:var(--ink-soft); letter-spacing:.04em; }
+
+/* Progress */
+.wp-bar{ height:9px; background:var(--rose-soft); border-radius:999px; overflow:hidden; margin-top:12px; }
+.wp-bar > i{ display:block; height:100%; background:var(--rose); border-radius:999px;
+  transition:width .5s cubic-bezier(.4,0,.2,1); }
+.wp-bar.sage{ background:var(--sage-soft); }
+.wp-bar.sage > i{ background:var(--sage); }
+
+/* Forms */
+.wp-field{ display:block; margin-bottom:16px; }
+.wp-field > span{ display:block; font-size:12px; font-weight:500; color:var(--ink-soft);
+  letter-spacing:.04em; margin-bottom:6px; }
+.wp input, .wp textarea, .wp select{ font:inherit; width:100%; color:var(--ink);
+  background:#FCFAF9; border:1px solid var(--line); border-radius:11px; padding:11px 13px;
+  transition:border-color .15s, box-shadow .15s; }
+.wp textarea{ resize:vertical; min-height:88px; }
+.wp input:focus, .wp textarea:focus, .wp select:focus{ outline:none;
+  border-color:var(--rose); box-shadow:0 0 0 3px var(--rose-soft); }
+.wp input::placeholder, .wp textarea::placeholder{ color:#B9A9B2; }
+
+/* Buttons */
+.wp-btn{ font:inherit; font-weight:500; font-size:14px; cursor:pointer; border:none;
+  background:var(--rose-deep); color:#fff; padding:11px 18px; border-radius:11px;
+  transition:filter .15s, transform .08s; }
+.wp-btn:hover{ filter:brightness(1.07); }
+.wp-btn:active{ transform:translateY(1px); }
+.wp-btn.ghost{ background:transparent; color:var(--rose-deep); border:1px solid var(--line); }
+.wp-btn.ghost:hover{ border-color:var(--rose); background:var(--rose-soft); }
+
+.wp-iconbtn{ font:inherit; cursor:pointer; border:1px solid var(--line); background:#fff;
+  color:var(--ink-soft); width:30px; height:30px; border-radius:9px; display:grid;
+  place-items:center; font-size:15px; transition:all .15s; }
+.wp-iconbtn:hover{ color:var(--ink); border-color:#D7C3BD; }
+.wp-iconbtn:disabled{ opacity:.32; cursor:not-allowed; }
+
+/* Budget table */
+.wp-brow{ display:grid; grid-template-columns:1fr 110px 110px 34px; gap:10px; align-items:center; }
+.wp-brow .head{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
+.wp-brow input{ padding:8px 10px; }
+
+/* Kanban */
+.wp-board{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; align-items:start; }
+.wp-col{ background:#FBF4F2; border:1px solid var(--line); border-radius:16px; padding:14px; }
+.wp-col h3{ margin:0 0 12px; font-size:13px; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink-soft); display:flex; justify-content:space-between; }
+.wp-col h3 b{ color:var(--rose); font-weight:600; }
+.wp-col.done h3 b{ color:var(--sage); }
+.wp-tcard{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px;
+  margin-bottom:10px; box-shadow:0 1px 2px rgba(58,46,63,.04); }
+.wp-tcard .ttl{ font-size:14px; font-weight:500; line-height:1.35; }
+.wp-tcard.done .ttl{ color:var(--ink-soft); text-decoration:line-through; }
+.wp-tbody{ cursor:pointer; border-radius:9px; }
+.wp-tbody:focus-visible{ outline:2px solid var(--rose); outline-offset:3px; }
+.wp-tbanner{ position:relative; margin-bottom:9px; border-radius:9px; overflow:hidden; }
+.wp-tbanner img{ width:100%; height:88px; object-fit:cover; display:block; }
+.wp-tcount{ position:absolute; bottom:6px; right:6px; background:rgba(58,46,63,.74); color:#fff;
+  font-size:11px; font-weight:600; padding:2px 7px; border-radius:999px; }
+.wp-tnote{ font-size:12px; color:var(--ink-soft); margin-top:8px; line-height:1.4;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.wp-tmeta{ display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; align-items:center; }
+.wp-chip{ font-size:11px; padding:3px 9px; border-radius:999px; background:var(--rose-soft);
+  color:var(--rose-deep); font-weight:500; }
+.wp-due{ font-size:11px; color:var(--ink-soft); }
+.wp-tools{ display:flex; gap:6px; margin-top:10px; justify-content:flex-end; }
+
+.wp-empty{ color:var(--ink-soft); font-size:13px; text-align:center; padding:18px 8px;
+  border:1px dashed var(--line); border-radius:12px; }
+
+/* Vendors */
+.wp-vcat{ margin-bottom:16px; }
+.wp-cathead{ display:flex; justify-content:space-between; align-items:center; gap:10px;
+  margin-bottom:16px; flex-wrap:wrap; }
+.wp .wp-catname{ font-family:'Fraunces',Georgia,serif; font-size:22px; font-weight:400;
+  color:var(--ink); border:none; background:transparent; padding:4px 2px; width:auto;
+  flex:1; min-width:160px; border-bottom:1px solid transparent; border-radius:0; }
+.wp .wp-catname:focus{ outline:none; box-shadow:none; border-bottom-color:var(--rose); }
+.wp-vgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+.wp-vcard{ position:relative; border:1px solid var(--line); border-radius:14px; padding:16px;
+  background:#FCFAF9; transition:border-color .2s, box-shadow .2s, background .2s; }
+.wp-vcard.chosen{ border-color:var(--sage); background:var(--sage-soft);
+  box-shadow:0 0 0 3px rgba(111,134,118,.16); }
+.wp-ribbon{ position:absolute; top:-10px; right:14px; background:var(--sage); color:#fff;
+  font-size:11px; font-weight:600; letter-spacing:.06em; padding:3px 10px; border-radius:999px; }
+.wp .wp-vname{ font-family:'Fraunces',Georgia,serif; font-size:18px; font-weight:500;
+  padding:6px 8px; margin-bottom:8px; background:#fff; }
+.wp-vf{ display:block; margin-top:10px; }
+.wp-vf > span{ display:block; font-size:11px; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:4px; }
+.wp-vf input, .wp-vf textarea{ padding:8px 10px; background:#fff; font-size:13px; }
+.wp-vfoot{ display:flex; gap:8px; align-items:center; margin-top:14px; }
+.wp-vnote{ font-size:11px; color:var(--sage); font-weight:600; margin-top:8px; text-align:center; }
+.wp-hearts{ display:flex; gap:3px; }
+.wp-hearts button{ font:inherit; cursor:pointer; border:none; background:none; padding:0 1px;
+  font-size:17px; line-height:1; color:#E2D2D8; transition:color .12s, transform .08s; }
+.wp-hearts button:hover{ transform:scale(1.12); }
+.wp-hearts button.on{ color:var(--rose); }
+
+/* Vendor photos */
+.wp-gal{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px; }
+.wp-thumb{ position:relative; width:54px; height:54px; border-radius:9px; overflow:hidden;
+  border:1px solid var(--line); }
+.wp-thumb img{ width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in; }
+.wp-thumb-x{ position:absolute; top:2px; right:2px; width:18px; height:18px; border:none;
+  border-radius:6px; background:rgba(58,46,63,.72); color:#fff; font-size:13px; line-height:1;
+  cursor:pointer; display:grid; place-items:center; padding:0; }
+.wp-thumb-x:hover{ background:var(--rose-deep); }
+.wp-addimg{ width:54px; height:54px; border-radius:9px; border:1px dashed #D9C7CA;
+  display:grid; place-items:center; cursor:pointer; color:var(--rose); background:#fff;
+  font-size:22px; font-weight:300; transition:border-color .15s, background .15s; }
+.wp-addimg:hover{ border-color:var(--rose); background:var(--rose-soft); }
+.wp-addimg.busy{ cursor:wait; color:var(--ink-soft); }
+.wp-lightbox{ position:fixed; inset:0; background:rgba(40,30,44,.84); z-index:50;
+  display:grid; place-items:center; padding:24px; animation:wp-fade .2s ease both; cursor:zoom-out; }
+.wp-lightbox img{ max-width:92vw; max-height:88vh; border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.4); }
+.wp-lightbox-x{ position:fixed; top:18px; right:20px; width:40px; height:40px; border:none;
+  border-radius:999px; background:rgba(255,255,255,.92); color:var(--ink); font-size:22px;
+  cursor:pointer; display:grid; place-items:center; }
+
+/* Edit modal */
+.wp-modal{ position:fixed; inset:0; background:rgba(40,30,44,.5); z-index:40; display:grid;
+  place-items:start center; padding:28px 16px; overflow-y:auto; animation:wp-fade .2s ease both; }
+.wp-modal-card{ background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:22px; width:min(520px,96vw); box-shadow:0 18px 50px rgba(40,30,44,.28); }
+.wp-modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.wp .wp-fieldlabel{ display:block; font-size:12px; font-weight:500; color:var(--ink-soft);
+  letter-spacing:.04em; margin-top:4px; }
+.wp-modal-foot{ display:flex; justify-content:space-between; gap:10px; margin-top:20px; }
+
+.wp-foot{ text-align:center; color:#B9A9B2; font-size:12px; margin-top:30px; }
+.wp-vstat{ font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; flex:none; white-space:nowrap; }
+.wp-vstat.booked{ background:var(--sage-soft); color:var(--sage); }
+.wp-vstat.booking{ background:var(--rose-soft); color:var(--rose-deep); }
+.wp-vstat.decided{ background:rgba(58,46,63,.07); color:var(--ink-soft); }
+.wp .wp-venue-linked{ background:var(--sage-soft); border-color:#CBD8CC; color:var(--ink); cursor:default; }
+.wp-linknote{ display:block; font-size:11px; font-weight:600; color:var(--sage); margin-top:5px; }
+.wp-btn-danger{ background:#B23A48; color:#fff; }
+.wp-btn-danger:hover{ filter:brightness(1.07); }
+/* Coordinator portfolio */
+.wp-backbar{ display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.wp-backbtn{ font:inherit; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--line);
+  background:#fff; color:var(--ink); padding:8px 14px; border-radius:999px; }
+.wp-backbtn:hover{ border-color:var(--rose); color:var(--rose-deep); }
+.wp-backclient{ font-size:13px; color:var(--ink-soft); }
+.wp .wp-coname{ font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:clamp(26px,5vw,40px);
+  border:none; background:transparent; padding:2px 0; width:100%; color:var(--ink); border-bottom:1px solid transparent; border-radius:0; margin:4px 0; }
+.wp .wp-coname:focus{ outline:none; box-shadow:none; border-bottom-color:var(--rose); }
+.wp-cobar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.wp-wgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.wp-wcard{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; }
+.wp-wc-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.wp-wc-status{ font-size:11px; font-weight:600; padding:3px 10px; border-radius:999px; letter-spacing:.02em; }
+.st-lead{ background:rgba(58,46,63,.08); color:var(--ink-soft); }
+.st-booked{ background:var(--rose-soft); color:var(--rose-deep); }
+.st-planning{ background:#EAF0F6; color:#3E6390; }
+.st-completed{ background:var(--sage-soft); color:var(--sage); }
+.st-cancelled{ background:#F3E3E3; color:#9B4B4B; }
+.wp-wc-days{ font-size:12px; font-weight:600; color:var(--ink-soft); }
+.wp-wc-name{ font-family:'Fraunces',Georgia,serif; font-size:22px; line-height:1.1; color:var(--ink); }
+.wp-wc-date{ font-size:13px; color:var(--ink-soft); margin-top:4px; }
+.wp-wc-meta{ font-size:12px; color:var(--ink-soft); margin-top:8px; }
+.wp-wc-btns{ display:flex; gap:8px; margin-top:14px; align-items:center; }
+.wp-remind{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;
+  background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 16px;
+  box-shadow:0 10px 34px rgba(58,46,63,.22); max-width:min(560px,92vw);
+  font-family:'Outfit',system-ui,sans-serif; color:var(--ink); font-size:13px; animation:wp-fade .3s ease both; }
+.wp-remind-txt{ flex:1; min-width:200px; line-height:1.4; }
+.wp-remind-btns{ display:flex; gap:8px; }
+.wp-remind .wp-btn{ padding:9px 14px; font-size:13px; }
+
+/* Theme picker */
+.wp-presetrow{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+.wp-preset{ display:flex; align-items:center; gap:8px; font:inherit; font-size:13px; cursor:pointer;
+  border:1px solid var(--line); background:#fff; color:var(--ink); padding:7px 12px 7px 8px; border-radius:999px; transition:border-color .15s; }
+.wp-preset:hover{ border-color:var(--rose); }
+.wp-presetdots{ display:flex; }
+.wp-presetdots .wp-dot{ width:15px; height:15px; border-radius:50%; margin-left:-5px; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(58,46,63,.08); }
+.wp-presetdots .wp-dot:first-child{ margin-left:0; }
+.wp-presetname{ font-weight:500; }
+.wp-colorgrid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.wp-colorctl{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.wp-colorlbl{ font-size:12px; font-weight:500; color:var(--ink-soft); letter-spacing:.04em; }
+.wp .wp-colorpick{ -webkit-appearance:none; appearance:none; width:44px; min-width:44px; height:38px; padding:0; border:1px solid var(--line);
+  border-radius:10px; background:none; cursor:pointer; flex:none; }
+.wp-colorpick::-webkit-color-swatch-wrapper{ padding:3px; }
+.wp-colorpick::-webkit-color-swatch{ border:none; border-radius:7px; }
+.wp-colorpick::-moz-color-swatch{ border:none; border-radius:7px; }
+.wp .wp-colorhex{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; text-transform:lowercase; padding:9px 10px; flex:1 1 auto; width:auto; min-width:0; }
+.wp-colorhelp{ font-size:11px; color:var(--ink-soft); }
+@media (max-width:560px){ .wp-colorgrid{ grid-template-columns:1fr; } }
+
+/* Seating */
+.wp-guestlist{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.wp-guestchip{ display:flex; align-items:center; gap:8px; background:#FBF4F2; border:1px solid var(--line); border-radius:999px; padding:6px 6px 6px 14px; }
+.wp-guestchip.seated{ background:var(--sage-soft); border-color:#CBD8CC; }
+.wp-gname{ font-size:13px; font-weight:500; }
+.wp-gloc{ font-size:11px; color:var(--ink-soft); }
+.wp-guestchip.seated .wp-gloc{ color:var(--sage); font-weight:600; }
+.wp-gx{ border:none; background:rgba(58,46,63,.08); color:var(--ink-soft); width:20px; height:20px; border-radius:50%; cursor:pointer; font-size:13px; line-height:1; display:grid; place-items:center; flex:none; }
+.wp-gx:hover{ background:var(--rose-soft); color:var(--rose-deep); }
+.wp-boardwrap{ border:1px solid var(--line); border-radius:16px; background:#FBF4F2; overflow:auto; max-height:640px; }
+.wp-zoombar{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.wp-zttl{ font-size:12px; color:var(--ink-soft); letter-spacing:.04em; margin-right:2px; }
+.wp-zbtn{ width:34px; height:34px; border:1px solid var(--line); background:#fff; color:var(--ink);
+  border-radius:9px; font-size:18px; line-height:1; cursor:pointer; display:grid; place-items:center; }
+.wp-zbtn:hover{ border-color:var(--rose); color:var(--rose-deep); }
+.wp-zval{ min-width:48px; text-align:center; font-size:13px; font-weight:600; color:var(--ink); }
+.wp-zreset{ padding:8px 14px; font-size:13px; }
+.wp-boardsizer{ position:relative; width:1000px; height:640px; }
+.wp-seatboard{ position:relative; width:1000px; height:640px; transform-origin:top left;
+  transition:transform .12s ease;
+  background-image:radial-gradient(rgba(58,46,63,.06) 1.4px, transparent 1.4px); background-size:26px 26px; }
+.wp-boardhint{ position:absolute; top:50%; left:0; right:0; transform:translateY(-50%); text-align:center; color:var(--ink-soft); font-size:13px; }
+.wp-table{ position:absolute; background:#fff; border:1px solid var(--line); border-radius:14px; padding:8px; box-shadow:0 3px 12px rgba(58,46,63,.1); }
+.wp-thead{ display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+.wp-grip{ cursor:grab; touch-action:none; color:var(--ink-soft); font-size:14px; padding:2px 5px; border-radius:6px; user-select:none; }
+.wp-grip:active{ cursor:grabbing; background:var(--rose-soft); }
+.wp .wp-tname{ font-size:12px; font-weight:600; padding:4px 6px; width:auto; flex:1; min-width:56px; background:#FCFAF9; border-radius:8px; }
+.wp-tarea{ position:relative; }
+.wp-tcenter{ position:absolute; background:var(--rose-soft); border:1px dashed #D9C2CB; border-radius:50%; }
+.wp-tcenter.rect{ border-radius:10px; }
+.wp-seat{ position:absolute; border:1px solid var(--line); background:#FCFAF9; border-radius:50%; cursor:pointer;
+  display:grid; place-items:center; font-size:11px; font-weight:600; color:var(--ink-soft); padding:0; transition:transform .1s, background .15s; }
+.wp-seat:hover{ transform:scale(1.08); border-color:var(--rose); }
+.wp-seat.filled{ background:var(--rose-deep); color:#fff; border-color:var(--rose-deep); }
+.wp-picklist{ display:flex; flex-direction:column; gap:6px; margin-top:6px; max-height:220px; overflow:auto; }
+.wp-pickrow{ text-align:left; font:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#FCFAF9; cursor:pointer; }
+.wp-pickrow:hover{ border-color:var(--rose); background:var(--rose-soft); }
+.wp-pickrow.on{ background:var(--sage-soft); border-color:var(--sage); font-weight:600; }
+
+/* Decor palette + props */
+.wp-decorpalette{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.wp-decorbtn{ font-size:13px; padding:8px 12px; }
+.wp-prop{ position:absolute; z-index:1; border-radius:12px; border:1px solid var(--line);
+  background:rgba(255,255,255,.72); display:grid; place-items:center; text-align:center;
+  cursor:grab; user-select:none; overflow:hidden; box-shadow:0 1px 4px rgba(58,46,63,.08); }
+.wp-prop:active{ cursor:grabbing; }
+.wp-proplabel{ font-size:12px; font-weight:600; color:var(--ink); padding:4px 8px; pointer-events:none; line-height:1.25; }
+.wp-prop.aisle{ background:repeating-linear-gradient(180deg, var(--rose-soft), var(--rose-soft) 18px, #fff 18px, #fff 36px);
+  border-style:dashed; }
+.wp-prop.stage{ background:linear-gradient(180deg, #F6ECD4, #EFE0BE); border-color:#D9C58C; }
+.wp-prop.stage .wp-proplabel{ color:#6E5A24; }
+.wp-prop.dance{ background:repeating-conic-gradient(rgba(168,101,124,.14) 0deg 90deg, rgba(255,255,255,.5) 90deg 180deg) 0 0/40px 40px;
+  border-color:#E3CBD3; }
+.wp-prop.decor{ background:#fff; }
+.wp-prop.text{ background:transparent; border-style:dashed; box-shadow:none; }
+.wp-prop.text .wp-proplabel{ font-family:'Fraunces',Georgia,serif; font-size:15px; font-weight:500; }
+.wp-prop-btn{ position:absolute; top:3px; width:20px; height:20px; border:none; border-radius:6px;
+  background:rgba(255,255,255,.9); color:var(--ink-soft); font-size:12px; line-height:1; cursor:pointer;
+  display:grid; place-items:center; padding:0; opacity:.85; }
+.wp-prop-btn:hover{ opacity:1; color:var(--ink); }
+.wp-prop-edit{ left:3px; }
+.wp-prop-del{ right:3px; }
+.wp-prop-del:hover{ background:var(--rose-soft); color:var(--rose-deep); }
+.wp-prop-resize{ position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize;
+  background:linear-gradient(135deg, transparent 45%, var(--rose) 45%, var(--rose) 60%, transparent 60%, transparent 72%, var(--rose) 72%, var(--rose) 86%, transparent 86%);
+  touch-action:none; }
+.wp-rotate{ position:absolute; width:22px; height:22px; border-radius:50%; border:1px solid var(--line);
+  background:#fff; color:var(--rose-deep); display:grid; place-items:center; font-size:13px; line-height:1;
+  cursor:grab; box-shadow:0 1px 3px rgba(58,46,63,.2); touch-action:none; z-index:6; user-select:none; }
+.wp-rotate:active{ cursor:grabbing; background:var(--rose-soft); }
+.wp-table .wp-rotate{ top:-27px; left:50%; transform:translateX(-50%); }
+.wp-prop .wp-rotate{ top:3px; left:50%; transform:translateX(-50%); }
+
+@media (max-width:760px){
+  .cols-3,.cols-4,.cols-2{ grid-template-columns:1fr 1fr; }
+  .wp-board{ grid-template-columns:1fr; }
+}
+@media (max-width:440px){
+  .cols-4{ grid-template-columns:1fr 1fr; }
+  .wp-brow{ grid-template-columns:1fr 80px 80px 30px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .wp-view{ animation:none; } .wp-bar > i{ transition:none; }
+}
+
+html,body{ margin:0; padding:0; background:#FBF5F4; }
+</style>
+</head>
+<body>
+<div id="wd-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #ecdfdf;font-family:'Outfit',system-ui,sans-serif;font-size:14px;color:#3A2E3F;">
+  <span id="wd-user-email">Loading&hellip;</span>
+  <a href="#" id="wd-logout" style="color:#8C4F66;text-decoration:none;font-weight:500;">Sign Out</a>
+</div>
+<script type="module">
+  import { requireAuth, logout } from "./js/auth.js";
+  requireAuth((user, access) => {
+    document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Couple";
+  }, { allowedRoles: ["couple"] });
+  document.getElementById("wd-logout").addEventListener("click", function(e){ e.preventDefault(); logout(); });
+</script>
+<div id="app" class="wp"></div>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- constants & helpers ---------- */
+  var KEY = "wedding-plan-v1";
+  var STAGES = ["todo", "doing", "done"];
+  var STAGE_LABEL = { todo: "To do", doing: "In progress", done: "Done" };
+  function uid(){ return Math.random().toString(36).slice(2, 9); }
+
+  function seed(){
+    return {
+      details: { partner1:"", partner2:"", date:"", venue:"", guests:"", theme:"", currency:"₱", notes:"", bg:"", bgPosX:50, bgPosY:50, bgZoom:100, themePrimary:"#A8657C", themeSecondary:"#6F8676", themeAccent:"#B8902F" },
+      budget: { total:"", items:[
+        {id:uid(),label:"Venue",est:"",act:""},
+        {id:uid(),label:"Catering",est:"",act:""},
+        {id:uid(),label:"Photography & video",est:"",act:""},
+        {id:uid(),label:"Attire",est:"",act:""},
+        {id:uid(),label:"Flowers & decor",est:"",act:""},
+        {id:uid(),label:"Music & entertainment",est:"",act:""},
+        {id:uid(),label:"Invitations",est:"",act:""},
+        {id:uid(),label:"Cake & desserts",est:"",act:""}
+      ]},
+      tasks: [
+        {id:uid(),title:"Set the date & book the venue",cat:"Venue",due:"",status:"todo",notes:"",images:[]},
+        {id:uid(),title:"Draft the guest list",cat:"Guests",due:"",status:"todo",notes:"",images:[]},
+        {id:uid(),title:"Choose & book a photographer",cat:"Photography",due:"",status:"todo",notes:"",images:[]},
+        {id:uid(),title:"Send save-the-dates",cat:"Invitations",due:"",status:"todo",notes:"",images:[]},
+        {id:uid(),title:"Order the cake",cat:"Catering",due:"",status:"todo",notes:"",images:[]},
+        {id:uid(),title:"Book caterer & menu tasting",cat:"Catering",due:"",status:"doing",notes:"",images:[]},
+        {id:uid(),title:"Got engaged",cat:"",due:"",status:"done",notes:"",images:[]}
+      ],
+      vendors: { categories:[
+        {id:uid(),label:"Venue",chosenId:null,options:[]},
+        {id:uid(),label:"Catering",chosenId:null,options:[]},
+        {id:uid(),label:"Photography & video",chosenId:null,options:[]},
+        {id:uid(),label:"Florist",chosenId:null,options:[]},
+        {id:uid(),label:"Music / DJ",chosenId:null,options:[]},
+        {id:uid(),label:"Cake",chosenId:null,options:[]},
+        {id:uid(),label:"Hair & makeup",chosenId:null,options:[]}
+      ]},
+      seating: { guests: [], tables: [], props: [] }
+    };
+  }
+
+  function normalize(o){
+    var s = seed();
+    if(!o) return s;
+    return {
+      details: Object.assign({}, s.details, o.details || {}),
+      budget: {
+        total: (o.budget && o.budget.total != null) ? o.budget.total : "",
+        items: (o.budget && Array.isArray(o.budget.items)) ? o.budget.items : s.budget.items
+      },
+      tasks: Array.isArray(o.tasks) ? o.tasks.map(function(t){
+        return Object.assign({ notes:"", images:[] }, t);
+      }) : s.tasks,
+      vendors: (o.vendors && Array.isArray(o.vendors.categories))
+        ? { categories: o.vendors.categories.map(function(c){
+            return { id:c.id||uid(), label:c.label||"", chosenId:c.chosenId||null,
+              options:(c.options||[]).map(function(op){ return Object.assign({images:[],rating:0}, op); }) };
+          }) }
+        : s.vendors,
+      seating: (o.seating && Array.isArray(o.seating.guests) && Array.isArray(o.seating.tables))
+        ? { guests: o.seating.guests, tables: o.seating.tables.map(function(t){
+            return { id:t.id||uid(), name:t.name||"", shape:t.shape||"round", rot: t.rot||0,
+              x: t.x||20, y: t.y||20, seats:(t.seats||[]).map(function(se){ return { id:se.id||uid(), label:se.label||"", guestId:se.guestId||null }; }) };
+          }), props: Array.isArray(o.seating.props) ? o.seating.props.map(function(pr){
+            return { id:pr.id||uid(), type:pr.type||"furniture", label:pr.label||"", x:pr.x||20, y:pr.y||20, w:pr.w||120, h:pr.h||70, rot: pr.rot||0 };
+          }) : [] }
+        : s.seating
+    };
+  }
+
+  var saveError = false;
+  /* EDITION SWITCH: true = coordinator (multi-wedding dashboard), false = couples (single wedding). */
+  var COORD = false;
+  var BIZ_KEY = COORD ? "wedding-biz-v1" : "wedding-couple-v1";
+  var STATUSES = ["Lead", "Booked", "Planning", "Completed", "Cancelled"];
+
+  function defaultMeta(){ return { clientName:"", email:"", phone:"", pkg:"", fee:"", paid:"", status:"Lead", notes:"" }; }
+  function wrapWedding(plan){ return { id: uid(), meta: defaultMeta(), plan: plan }; }
+  function normalizeBiz(o){
+    var b = { name: (o && o.name) || "My Coordination Co.", currency: (o && o.currency) || "\u20b1", activeId: (o && o.activeId) || null, weddings: [] };
+    if(o && Array.isArray(o.weddings)) b.weddings = o.weddings.map(function(w){
+      return { id: w.id || uid(), meta: Object.assign(defaultMeta(), w.meta || {}), plan: normalize(w.plan || {}) };
+    });
+    return b;
+  }
+  function loadBiz(){
+    try { var v = localStorage.getItem(BIZ_KEY); if(v) return normalizeBiz(JSON.parse(v)); } catch(e){}
+    try { var old = localStorage.getItem(KEY); if(old) return normalizeBiz({ weddings:[ { plan: JSON.parse(old) } ] }); } catch(e){}
+    return normalizeBiz({});
+  }
+  function save(){
+    try { localStorage.setItem(BIZ_KEY, JSON.stringify(biz)); saveError = false; }
+    catch(e){ saveError = true; updateFoot(); }
+  }
+
+  var biz = loadBiz();
+  var appMode = "home";
+  function active(){ return biz.weddings.filter(function(w){ return w.id === biz.activeId; })[0] || null; }
+  var state = active() ? active().plan : (biz.weddings[0] ? biz.weddings[0].plan : seed());
+  if(!COORD){
+    if(!biz.weddings.length){ biz.weddings.push(wrapWedding(seed())); }
+    biz.activeId = biz.weddings[0].id;
+    state = biz.weddings[0].plan;
+    appMode = "wedding";
+  }
+  save();
+
+  /* DOM builder */
+  function el(tag, attrs, children){
+    var n = document.createElement(tag);
+    if(attrs) for(var k in attrs){
+      var v = attrs[k];
+      if(v == null || v === false) continue;
+      if(k === "class") n.className = v;
+      else if(k === "style" && typeof v === "object") Object.assign(n.style, v);
+      else if(k === "html") n.innerHTML = v;
+      else if(k.slice(0,2) === "on" && typeof v === "function") n.addEventListener(k.slice(2).toLowerCase(), v);
+      else n.setAttribute(k, v === true ? "" : v);
+    }
+    if(children != null){
+      if(!Array.isArray(children)) children = [children];
+      children.forEach(function(c){
+        if(c == null || c === false) return;
+        n.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+      });
+    }
+    return n;
+  }
+
+  /* image compression -> jpeg data url */
+  function compressImage(file, maxDim, quality){
+    maxDim = maxDim || 900; quality = quality || 0.72;
+    return new Promise(function(resolve, reject){
+      if(!file || !file.type || file.type.indexOf("image/") !== 0){ reject(new Error("not-image")); return; }
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.max(1, Math.round(img.width * scale));
+          var h = Math.max(1, Math.round(img.height * scale));
+          var cv = document.createElement("canvas");
+          cv.width = w; cv.height = h;
+          var ctx = cv.getContext("2d");
+          ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,w,h);
+          ctx.drawImage(img, 0, 0, w, h);
+          try { resolve(cv.toDataURL("image/jpeg", quality)); } catch(e){ reject(e); }
+        };
+        img.onerror = function(){ reject(new Error("decode")); };
+        img.src = reader.result;
+      };
+      reader.onerror = function(){ reject(new Error("read")); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* formatting */
+  /* theme colors */
+  function hexToRgb(h){ h = (h||"").replace("#",""); if(h.length===3) h = h.split("").map(function(c){ return c+c; }).join(""); var n = parseInt(h,16); return [ (n>>16)&255, (n>>8)&255, n&255 ]; }
+  function toHex2(v){ v = Math.max(0, Math.min(255, Math.round(v))); return ("0"+v.toString(16)).slice(-2); }
+  function mix(a,b,t){ var A=hexToRgb(a),B=hexToRgb(b); return "#"+toHex2(A[0]+(B[0]-A[0])*t)+toHex2(A[1]+(B[1]-A[1])*t)+toHex2(A[2]+(B[2]-A[2])*t); }
+  function lum(hex){ var c = hexToRgb(hex).map(function(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); }); return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]; }
+  function adjustReadable(hex, maxLum){ var c = hex, g = 0; while(lum(c) > maxLum && g < 16){ c = mix(c, "#000000", 0.1); g++; } return c; }
+  function normalizeHex(s){ s = (s||"").trim().replace(/^#/,""); if(/^[0-9a-fA-F]{3}$/.test(s)) s = s.split("").map(function(c){return c+c;}).join(""); if(/^[0-9a-fA-F]{6}$/.test(s)) return "#" + s.toLowerCase(); return null; }
+  function setTheme(){
+    if(!app) return;
+    var p = state.details.themePrimary || "#A8657C";
+    var s = state.details.themeSecondary || "#6F8676";
+    var a = state.details.themeAccent || "#B8902F";
+    app.style.setProperty("--rose", adjustReadable(p, 0.5));
+    app.style.setProperty("--rose-deep", adjustReadable(p, 0.3));
+    app.style.setProperty("--rose-soft", mix(p, "#ffffff", 0.86));
+    app.style.setProperty("--sage", adjustReadable(s, 0.5));
+    app.style.setProperty("--sage-soft", mix(s, "#ffffff", 0.85));
+    app.style.setProperty("--gold", adjustReadable(a, 0.55));
+  }
+
+  function sym(){ return state.details.currency || "₱"; }
+  function num(v){ return (v === "" || v == null) ? 0 : (Number(v) || 0); }
+  function fmt(n){ return sym() + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits:0 }); }
+  function sumAct(){ return state.budget.items.reduce(function(a,b){ return a + num(b.act); }, 0); }
+  function sumEst(){ return state.budget.items.reduce(function(a,b){ return a + num(b.est); }, 0); }
+  function daysToGo(){
+    if(!state.details.date) return null;
+    var d = new Date(state.details.date + "T00:00:00");
+    if(isNaN(d)) return null;
+    var t = new Date(); t.setHours(0,0,0,0);
+    return Math.round((d - t) / 86400000);
+  }
+  function prettyDate(){
+    if(!state.details.date) return null;
+    var d = new Date(state.details.date + "T00:00:00");
+    if(isNaN(d)) return null;
+    return d.toLocaleDateString(undefined, { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  }
+  function fmtDue(d){ return new Date(d + "T00:00:00").toLocaleDateString(undefined, { month:"short", day:"numeric" }); }
+
+  /* ---------- app shell ---------- */
+  var app = document.getElementById("app");
+  var tab = "overview";
+  var ioMsg = null;
+  var headBgImg = null;
+  var seatZoom = 1;
+
+  function header(){
+    var names = [state.details.partner1, state.details.partner2].filter(Boolean);
+    var h = el("header", { class:"wp-head" });
+    headBgImg = null;
+    if(state.details.bg){
+      h.classList.add("has-bg");
+      var px = state.details.bgPosX == null ? 50 : state.details.bgPosX;
+      var py = state.details.bgPosY == null ? 50 : state.details.bgPosY;
+      var pz = state.details.bgZoom == null ? 100 : state.details.bgZoom;
+      var bgWrap = el("div", { class:"wp-headbg" });
+      headBgImg = el("img", { src:state.details.bg, alt:"" });
+      headBgImg.style.objectPosition = px + "% " + py + "%";
+      headBgImg.style.transform = "scale(" + (pz / 100) + ")";
+      bgWrap.appendChild(headBgImg);
+      h.appendChild(bgWrap);
+      h.appendChild(el("div", { class:"wp-headveil" }));
+    }
+    h.appendChild(el("div", { class:"eyebrow" }, "Wedding planner"));
+    var h1 = el("h1", { class:"serif" });
+    if(names.length === 2){
+      h1.appendChild(document.createTextNode(names[0]));
+      h1.appendChild(el("span", { class:"amp" }, "&"));
+      h1.appendChild(document.createTextNode(names[1]));
+    } else {
+      h1.textContent = names.length ? names[0] : "Your wedding";
+    }
+    h.appendChild(h1);
+    var pd = prettyDate();
+    h.appendChild(el("div", { class:"sub" }, (effectiveVenue() || "Your celebration, all in one place") + (pd ? (" · " + pd) : "")));
+    return h;
+  }
+
+  function nav(){
+    var n = el("nav", { class:"wp-nav" });
+    var tabs = [["overview","Overview"],["client","Client"],["details","Details"],["budget","Budget"],["vendors","Vendors"],["tasks","Tasks"],["seating","Seating"]];
+    if(!COORD) tabs = tabs.filter(function(p){ return p[0] !== "client"; });
+    tabs.forEach(function(p){
+      var b = el("button", { onClick:function(){ tab = p[0]; ioMsg = null; render(); } }, p[1]);
+      if(tab === p[0]) b.setAttribute("aria-current","true");
+      n.appendChild(b);
+    });
+    return n;
+  }
+
+  var footEl = null;
+  function footText(){
+    return saveError
+      ? "Couldn't auto-save — the plan may be too large, or this browser blocks storage for local files. Use Export in Details to keep a backup."
+      : "Your plan saves automatically in this browser. Use Export in Details to back up or move devices.";
+  }
+  function footer(){ footEl = el("div", { class:"wp-foot" }, footText()); return footEl; }
+  function updateFoot(){ if(footEl) footEl.textContent = footText(); }
+
+  function stat(l, n){ return el("div", { class:"wp-stat wp-card" }, [ el("div",{class:"l"},l), el("div",{class:"n"},n) ]); }
+
+  /* ---------- Overview ---------- */
+  function viewOverview(){
+    var f = document.createDocumentFragment();
+    var d = daysToGo(), pd = prettyDate();
+    var hero = el("div", { class:"wp-card wp-hero" });
+    hero.appendChild(el("div", { class:"eyebrow" }, pd ? "Counting down to" : "Add your date to start the countdown"));
+    if(d != null){
+      hero.appendChild(el("div", { class:"wp-count" }, d > 0 ? String(d) : (d === 0 ? "Today" : "\u2665")));
+      hero.appendChild(el("div", { class:"wp-rule" }));
+      var lbl = (d > 1 ? "days to go" : d === 1 ? "one day to go" : d === 0 ? "the big day!" : "already married") + (pd ? (" \u00b7 " + pd) : "");
+      hero.appendChild(el("div", { class:"wp-count-lbl serif", style:{ fontStyle:"italic", fontSize:"18px" } }, lbl));
+    } else {
+      hero.appendChild(el("div", { class:"wp-count-lbl", style:{ marginTop:"18px" } }, "Head to Details to set the wedding date."));
+    }
+    f.appendChild(hero);
+
+    var spent = sumAct(), total = num(state.budget.total), remaining = total - spent;
+    var done = state.tasks.filter(function(t){ return t.status === "done"; }).length;
+    var taskPct = state.tasks.length ? (done / state.tasks.length) * 100 : 0;
+    var spentPct = total > 0 ? Math.min(100, (spent / total) * 100) : 0;
+
+    var grid = el("div", { class:"wp-grid cols-4", style:{ marginTop:"16px" } });
+    grid.appendChild(stat("Guests", state.seating.guests.length ? state.seating.guests.length.toLocaleString() : "\u2014"));
+    grid.appendChild(stat("Budget remaining", total > 0 ? fmt(remaining) : "\u2014"));
+    grid.appendChild(stat("Spent so far", fmt(spent)));
+    grid.appendChild(stat("Tasks done", done + "/" + state.tasks.length));
+    f.appendChild(grid);
+
+    var two = el("div", { class:"wp-grid cols-2", style:{ marginTop:"16px" } });
+    var bc = el("div", { class:"wp-card" });
+    bc.appendChild(el("div", { class:"eyebrow" }, "Budget"));
+    var brow = el("div", { style:{ display:"flex", justifyContent:"space-between", marginTop:"10px", fontSize:"14px" } });
+    brow.appendChild(el("span", { style:{ color:"var(--ink-soft)" } }, "Spent " + fmt(spent)));
+    brow.appendChild(el("span", { style:{ color:"var(--ink-soft)" } }, "of " + (total > 0 ? fmt(total) : "not set")));
+    bc.appendChild(brow);
+    var bar = el("div", { class:"wp-bar" }); bar.appendChild(el("i", { style:{ width: spentPct + "%" } })); bc.appendChild(bar);
+    bc.appendChild(el("div", { style:{ fontSize:"13px", marginTop:"10px", color: remaining < 0 ? "var(--rose-deep)" : "var(--ink-soft)" } },
+      total > 0 ? (remaining < 0 ? "Over budget by " + fmt(Math.abs(remaining)) : fmt(remaining) + " left to spend") : "Set a target in the Budget tab."));
+    two.appendChild(bc);
+
+    var pc = el("div", { class:"wp-card" });
+    pc.appendChild(el("div", { class:"eyebrow" }, "Progress"));
+    var prow = el("div", { style:{ display:"flex", justifyContent:"space-between", marginTop:"10px", fontSize:"14px" } });
+    prow.appendChild(el("span", { style:{ color:"var(--ink-soft)" } }, done + " done"));
+    prow.appendChild(el("span", { style:{ color:"var(--ink-soft)" } }, (state.tasks.length - done) + " to go"));
+    pc.appendChild(prow);
+    var bar2 = el("div", { class:"wp-bar sage" }); bar2.appendChild(el("i", { style:{ width: taskPct + "%" } })); pc.appendChild(bar2);
+    pc.appendChild(el("div", { style:{ fontSize:"13px", color:"var(--ink-soft)", marginTop:"10px" } }, Math.round(taskPct) + "% of your checklist complete."));
+    two.appendChild(pc);
+    f.appendChild(two);
+
+    var upNext = state.tasks.filter(function(t){ return t.status !== "done"; })
+      .sort(function(a,b){ return (a.due || "9999").localeCompare(b.due || "9999"); }).slice(0,4);
+    var un = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    un.appendChild(el("div", { class:"eyebrow" }, "Up next"));
+    if(upNext.length === 0){
+      un.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"12px" } }, "Everything's done \u2014 beautifully done."));
+    } else {
+      var box = el("div", { style:{ marginTop:"12px" } });
+      upNext.forEach(function(t){
+        var r = el("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"11px 0", borderBottom:"1px solid var(--line)" } });
+        r.appendChild(el("span", { style:{ fontSize:"14px" } }, t.title));
+        r.appendChild(el("span", { style:{ fontSize:"12px", color:"var(--ink-soft)" } }, t.due ? fmtDue(t.due) : STAGE_LABEL[t.status]));
+        box.appendChild(r);
+      });
+      un.appendChild(box);
+    }
+    f.appendChild(un);
+
+    var chosen = state.vendors.categories.map(function(c){
+      var opt = c.options.filter(function(o){ return o.id === c.chosenId; })[0];
+      return { catId:c.id, label:c.label, opt:opt };
+    }).filter(function(x){ return x.opt; });
+    if(chosen.length){
+      var dc = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+      dc.appendChild(el("div", { class:"eyebrow" }, "Vendor decisions"));
+      var b2 = el("div", { style:{ marginTop:"12px" } });
+      chosen.forEach(function(x){
+        var st = vendorBookStatus(x.catId);
+        var r = el("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:"10px", padding:"11px 0", borderBottom:"1px solid var(--line)" } });
+        r.appendChild(el("span", { style:{ fontSize:"12px", color:"var(--ink-soft)", letterSpacing:".04em", flex:"none" } }, x.label));
+        var right = el("div", { style:{ display:"flex", alignItems:"center", gap:"8px", minWidth:"0" } });
+        right.appendChild(el("span", { style:{ fontSize:"14px", fontWeight:500 } }, x.opt.name || "\u2014"));
+        right.appendChild(el("span", { class:"wp-vstat " + st.cls }, st.label));
+        r.appendChild(right);
+        b2.appendChild(r);
+      });
+      dc.appendChild(b2);
+      f.appendChild(dc);
+    }
+    return f;
+  }
+
+  // A chosen vendor is "Booked" only once its linked task is Done; otherwise it's decided/booking.
+  function vendorBookStatus(catId){
+    var task = state.tasks.filter(function(t){ return t.vendorKey === catId; })[0];
+    var st = task ? task.status : "todo";
+    if(st === "done") return { label:"Booked \u2713", cls:"booked" };
+    if(st === "doing") return { label:"Booking\u2026", cls:"booking" };
+    return { label:"Decided", cls:"decided" };
+  }
+
+  // The venue name derived from the chosen vendor in a "Venue" category (kept in sync with the tasks/vendors flow).
+  function chosenVenueName(){
+    var cats = state.vendors.categories;
+    for(var i=0;i<cats.length;i++){
+      var c = cats[i];
+      if(c.label && c.label.toLowerCase().indexOf("venue") > -1 && c.chosenId){
+        var opt = c.options.filter(function(o){ return o.id === c.chosenId; })[0];
+        if(opt && (opt.name || "").trim()) return opt.name.trim();
+      }
+    }
+    return "";
+  }
+  function effectiveVenue(){ return chosenVenueName() || state.details.venue || ""; }
+
+  /* ---------- Details ---------- */
+  function detailField(labelText, key, type, placeholder){
+    var inp = el(type === "textarea" ? "textarea" : "input", { placeholder: placeholder || "" });
+    if(type && type !== "textarea") inp.type = type;
+    if(type === "number"){ inp.min = "0"; inp.inputMode = "numeric"; }
+    inp.value = state.details[key] || "";
+    inp.addEventListener("input", function(){ state.details[key] = inp.value; save(); });
+    return el("label", { class:"wp-field" }, [ el("span", {}, labelText), inp ]);
+  }
+
+  function venueField(){
+    var linked = chosenVenueName();
+    if(linked){
+      var vin = el("input", { type:"text", class:"wp-venue-linked", readonly:"", tabindex:"-1" });
+      vin.value = linked;
+      return el("label", { class:"wp-field" }, [
+        el("span", {}, "Venue"),
+        vin,
+        el("span", { class:"wp-linknote" }, "\u2713 Set from your chosen venue in Vendors \u2014 change it there")
+      ]);
+    }
+    var inp = el("input", { type:"text", placeholder:"Where it's happening" });
+    inp.value = state.details.venue || "";
+    inp.addEventListener("input", function(){ state.details.venue = inp.value; save(); });
+    return el("label", { class:"wp-field" }, [ el("span", {}, "Venue"), inp ]);
+  }
+
+  function setBg(file){
+    if(!file || file.type.indexOf("image/") !== 0) return;
+    compressImage(file, 1400, 0.72).then(function(url){
+      state.details.bg = url;
+      state.details.bgPosX = 50; state.details.bgPosY = 50; state.details.bgZoom = 100;
+      save(); render();
+    }, function(){});
+  }
+
+  function viewDetails(){
+    var f = document.createDocumentFragment();
+    var card = el("div", { class:"wp-card" });
+    card.appendChild(el("div", { class:"eyebrow" }, "The essentials"));
+    var g = el("div", { class:"wp-grid cols-2", style:{ marginTop:"16px" } });
+    g.appendChild(detailField("The Groom", "partner1", "text", "First name"));
+    g.appendChild(detailField("The Bride", "partner2", "text", "First name"));
+    g.appendChild(detailField("Wedding date", "date", "date"));
+    g.appendChild(venueField());
+    g.appendChild(detailField("Currency symbol", "currency", "text", "\u20b1 / $ / \u20ac"));
+    card.appendChild(g);
+    var notes = detailField("Notes", "notes", "textarea", "Anything you want to remember\u2026");
+    notes.style.marginBottom = "0";
+    card.appendChild(notes);
+    f.appendChild(card);
+
+    var themeCard = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    themeCard.appendChild(el("div", { class:"eyebrow" }, "Wedding theme"));
+    themeCard.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 14px", maxWidth:"560px" } },
+      "Pick your colors and the whole planner restyles to match. Start from a palette, then fine-tune with the color wheel or a hex code."));
+
+    var presets = [
+      ["Blush & sage", "#A8657C", "#6F8676", "#B8902F"],
+      ["Dusty blue", "#5B7A99", "#8FA9A0", "#C2A24A"],
+      ["Terracotta", "#B06A4F", "#8C9A6E", "#C99A46"],
+      ["Emerald & gold", "#3E7D63", "#7E9C8A", "#C6A23C"],
+      ["Lavender", "#8A6FA8", "#98A6C6", "#C6A24A"],
+      ["Burgundy", "#8C3B4A", "#B08497", "#B98F3F"],
+      ["Ink & gold", "#4A4453", "#7E8A80", "#B8902F"]
+    ];
+    var pRow = el("div", { class:"wp-presetrow" });
+    presets.forEach(function(pp){
+      var btn = el("button", { class:"wp-preset", onClick:function(){
+        state.details.themePrimary = pp[1]; state.details.themeSecondary = pp[2]; state.details.themeAccent = pp[3];
+        setTheme(); save(); render();
+      } });
+      var dots = el("span", { class:"wp-presetdots" });
+      [pp[1], pp[2], pp[3]].forEach(function(c){ var d = el("span", { class:"wp-dot" }); d.style.background = c; dots.appendChild(d); });
+      btn.appendChild(dots);
+      btn.appendChild(el("span", { class:"wp-presetname" }, pp[0]));
+      pRow.appendChild(btn);
+    });
+    themeCard.appendChild(pRow);
+
+    function colorControl(labelText, help, key){
+      var wrap = el("div", { class:"wp-colorctl" });
+      wrap.appendChild(el("span", { class:"wp-colorlbl" }, labelText));
+      var row = el("div", { style:{ display:"flex", gap:"8px", alignItems:"center" } });
+      var cin = el("input", { type:"color", class:"wp-colorpick" }); cin.value = state.details[key];
+      var hin = el("input", { type:"text", class:"wp-colorhex", maxlength:"7", spellcheck:"false" }); hin.value = state.details[key];
+      cin.addEventListener("input", function(){ state.details[key] = cin.value; hin.value = cin.value; setTheme(); save(); });
+      hin.addEventListener("input", function(){ var v = normalizeHex(hin.value); if(v){ state.details[key] = v; cin.value = v; setTheme(); save(); } });
+      row.appendChild(cin); row.appendChild(hin);
+      wrap.appendChild(row);
+      wrap.appendChild(el("span", { class:"wp-colorhelp" }, help));
+      return wrap;
+    }
+    var cGrid = el("div", { class:"wp-colorgrid" });
+    cGrid.appendChild(colorControl("Primary", "Buttons, accents & highlights", "themePrimary"));
+    cGrid.appendChild(colorControl("Secondary", "Progress & \u201cdone\u201d states", "themeSecondary"));
+    cGrid.appendChild(colorControl("Highlight", "The countdown number", "themeAccent"));
+    themeCard.appendChild(cGrid);
+
+    themeCard.appendChild(el("button", { class:"wp-btn ghost", style:{ marginTop:"14px" }, onClick:function(){
+      state.details.themePrimary = "#A8657C"; state.details.themeSecondary = "#6F8676"; state.details.themeAccent = "#B8902F";
+      setTheme(); save(); render();
+    } }, "Reset to default"));
+    f.appendChild(themeCard);
+
+    var bgCard = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    bgCard.appendChild(el("div", { class:"eyebrow" }, "Header background"));
+    bgCard.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 14px", maxWidth:"560px" } },
+      "Add a photo to show behind your names at the top of the planner. Leave it empty for the plain background."));
+    var bgRow = el("div", { style:{ display:"flex", gap:"12px", alignItems:"center", flexWrap:"wrap" } });
+    function bgPicker(labelText, cls){
+      var lab = el("label", { class:"wp-btn " + cls, style:{ display:"inline-block" } }, labelText);
+      var inp = el("input", { type:"file", accept:"image/*", style:{ display:"none" } });
+      inp.addEventListener("change", function(e){ setBg(e.target.files[0]); e.target.value = ""; });
+      lab.appendChild(inp);
+      return lab;
+    }
+    if(state.details.bg){
+      var prev = el("div", { class:"wp-bgprev" }); prev.appendChild(el("img", { src:state.details.bg, alt:"Header background preview" }));
+      bgRow.appendChild(prev);
+      bgRow.appendChild(bgPicker("Replace image", "ghost"));
+      bgRow.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ state.details.bg = ""; save(); render(); } }, "Remove"));
+    } else {
+      bgRow.appendChild(bgPicker("Add background image", ""));
+    }
+    bgCard.appendChild(bgRow);
+
+    if(state.details.bg){
+      function applyBg(){
+        if(!headBgImg) return;
+        headBgImg.style.objectPosition = (state.details.bgPosX) + "% " + (state.details.bgPosY) + "%";
+        headBgImg.style.transform = "scale(" + (state.details.bgZoom / 100) + ")";
+      }
+      function slider(labelText, key, min, max){
+        var val = state.details[key];
+        var input = el("input", { type:"range", min:String(min), max:String(max), value:String(val), class:"wp-range" });
+        input.addEventListener("input", function(){ state.details[key] = Number(input.value); applyBg(); save(); });
+        var row = el("div", { class:"wp-slider" });
+        row.appendChild(el("span", {}, labelText));
+        row.appendChild(input);
+        return row;
+      }
+      var controls = el("div", { style:{ marginTop:"16px", maxWidth:"460px" } });
+      controls.appendChild(el("div", { class:"eyebrow", style:{ marginBottom:"6px" } }, "Adjust framing"));
+      controls.appendChild(slider("Move left \u2194 right", "bgPosX", 0, 100));
+      controls.appendChild(slider("Move up \u2195 down", "bgPosY", 0, 100));
+      controls.appendChild(slider("Zoom", "bgZoom", 100, 250));
+      controls.appendChild(el("button", { class:"wp-btn ghost", style:{ marginTop:"8px" }, onClick:function(){
+        state.details.bgPosX = 50; state.details.bgPosY = 50; state.details.bgZoom = 100; save(); render();
+      } }, "Reset framing"));
+      bgCard.appendChild(controls);
+    }
+    f.appendChild(bgCard);
+
+    var bk = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    bk.appendChild(el("div", { class:"eyebrow" }, "Back up & move devices"));
+    bk.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 16px", maxWidth:"560px" } },
+      "Export saves your whole plan \u2014 details, budget, vendors, photos, and tasks \u2014 to a file you can keep or send to yourself. On another device, open this planner and import that file to pick up where you left off."));
+    var row = el("div", { style:{ display:"flex", gap:"10px", flexWrap:"wrap", alignItems:"center" } });
+    row.appendChild(el("button", { class:"wp-btn", onClick: exportPlan }, "Export plan"));
+    var imp = el("label", { class:"wp-btn ghost", style:{ display:"inline-block" } }, "Import plan");
+    var impInput = el("input", { type:"file", accept:"application/json,.json", style:{ display:"none" } });
+    impInput.addEventListener("change", function(e){ importPlan(e.target.files[0]); e.target.value = ""; });
+    imp.appendChild(impInput);
+    row.appendChild(imp);
+    bk.appendChild(row);
+    if(ioMsg){
+      bk.appendChild(el("div", { style:{ marginTop:"14px", fontSize:"13px", fontWeight:500, color: ioMsg.ok ? "var(--sage)" : "var(--rose-deep)" } }, ioMsg.text));
+    }
+    var unsaved = hasUnsaved() && planHasContent();
+    var statusBox = el("div", { style:{ marginTop:"14px", display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap" } });
+    statusBox.appendChild(el("span", { style:{ fontSize:"13px", fontWeight:600, color: unsaved ? "var(--rose-deep)" : "var(--sage)" } },
+      unsaved ? "\u25cf Changes not yet backed up" : "\u2713 Backup up to date"));
+    statusBox.appendChild(el("span", { style:{ fontSize:"12px", color:"var(--ink-soft)" } }, "Last export: " + relTime(lastExportAt)));
+    bk.appendChild(statusBox);
+    if(unsaved){
+      bk.appendChild(el("div", { style:{ fontSize:"12px", color:"var(--ink-soft)", marginTop:"4px" } },
+        "You've made changes since your last backup \u2014 export to update the file you keep."));
+    }
+    var planMB = JSON.stringify(state).length / 1048576;
+    bk.appendChild(el("div", { style:{ marginTop:"14px", fontSize:"12px", color: planMB > 4 ? "var(--rose-deep)" : "var(--ink-soft)" } },
+      "Current plan size: " + (planMB < 0.1 ? "under 0.1" : planMB.toFixed(1)) + " MB" + (planMB > 4 ? " \u2014 getting large. Remove a few photos or export a backup to be safe." : "")));
+    f.appendChild(bk);
+    return f;
+  }
+
+  function exportPlan(){
+    try {
+      var data = JSON.stringify(state, null, 2);
+      var blob = new Blob([data], { type:"application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var names = [state.details.partner1, state.details.partner2].filter(Boolean);
+      var tag = names.length ? names.join("-and-").replace(/\s+/g, "") : "plan";
+      a.href = url; a.download = "wedding-" + tag.toLowerCase() + ".json";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      ioMsg = { ok:true, text: COORD ? "This wedding exported as a single file you can share or import elsewhere." : "Plan exported. Keep the file safe \u2014 that's your backup." };
+      if(!COORD) markExported();
+    } catch(e){ ioMsg = { ok:false, text:"Couldn't create the export file. Try again." }; }
+    render();
+  }
+
+  /* ---- backup tracking ---- */
+  var EXP_KEY = BIZ_KEY + "__exp";
+  var REMIND_MS = 10 * 60 * 1000;
+  var sessionStart = Date.now();
+  var lastExportSig = null, lastExportAt = null;
+  try { var _ex = JSON.parse(localStorage.getItem(EXP_KEY)); if(_ex){ lastExportSig = _ex.sig; lastExportAt = _ex.at; } } catch(_){}
+  var reminderSnoozeUntil = (lastExportAt || sessionStart) + REMIND_MS;
+
+  function hashStr(s){ var h = 5381, i = s.length; while(i){ h = (h * 33) ^ s.charCodeAt(--i); } return (h >>> 0).toString(36); }
+  function currentSig(){ try { return hashStr(JSON.stringify(COORD ? biz : state)); } catch(_){ return ""; } }
+  function hasUnsaved(){ return currentSig() !== lastExportSig; }
+  function markExported(){
+    lastExportSig = currentSig(); lastExportAt = Date.now();
+    try { localStorage.setItem(EXP_KEY, JSON.stringify({ sig:lastExportSig, at:lastExportAt })); } catch(_){}
+    reminderSnoozeUntil = Date.now() + REMIND_MS;
+    hideReminder();
+  }
+  function relTime(ts){
+    if(!ts) return "never";
+    var m = Math.round((Date.now() - ts) / 60000);
+    if(m < 1) return "just now";
+    if(m < 60) return m + " min ago";
+    var h = Math.round(m / 60); if(h < 24) return h + " hour" + (h > 1 ? "s" : "") + " ago";
+    var d = Math.round(h / 24); return d + " day" + (d > 1 ? "s" : "") + " ago";
+  }
+  function planHasContent(){
+    if(COORD) return biz.weddings.length > 0;
+    var d = state.details;
+    return !!(d.partner1 || d.partner2 || d.venue || d.bg || d.notes
+      || (state.seating.guests && state.seating.guests.length)
+      || (state.seating.tables && state.seating.tables.length)
+      || state.budget.items.some(function(i){ return i.act || i.est; })
+      || state.vendors.categories.some(function(c){ return c.chosenId; }));
+  }
+  function showReminder(){
+    if(document.getElementById("wp-remind")) return;
+    var bar = el("div", { id:"wp-remind", class:"wp wp-remind" });
+    bar.appendChild(el("span", { class:"wp-remind-txt" }, "\ud83d\udcbe It's been a while since your last backup \u2014 export " + (COORD ? "your book" : "your plan") + " to keep it safe."));
+    var btns = el("div", { class:"wp-remind-btns" });
+    btns.appendChild(el("button", { class:"wp-btn", onClick:function(){ if(COORD) exportPortfolio(); else exportPlan(); } }, "Export now"));
+    btns.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ reminderSnoozeUntil = Date.now() + REMIND_MS; hideReminder(); } }, "Later"));
+    bar.appendChild(btns);
+    document.body.appendChild(bar);
+  }
+  function hideReminder(){ var b = document.getElementById("wp-remind"); if(b) b.remove(); }
+  function maybeRemind(){
+    if(!hasUnsaved() || !planHasContent()){ hideReminder(); return; }
+    if(Date.now() >= reminderSnoozeUntil) showReminder();
+  }
+  setInterval(maybeRemind, 60000);
+
+  function importPlan(file){
+    if(!file) return;
+    var r = new FileReader();
+    r.onload = function(){
+      var obj;
+      try { obj = JSON.parse(r.result); if(!obj || !obj.details || !obj.budget || !Array.isArray(obj.tasks)) throw 0; }
+      catch(e){ ioMsg = { ok:false, text:"That file isn't a wedding plan export. Pick the .json file you downloaded." }; render(); return; }
+      confirmDialog({
+        title:"Import plan",
+        message: COORD ? "Import this plan? It will replace this wedding's details." : "Import this plan? It will replace everything currently in the planner.",
+        confirmLabel:"Import & replace",
+        onConfirm:function(){
+          var w = active(); if(w){ w.plan = normalize(obj); state = w.plan; } save();
+          if(!COORD) markExported();
+          ioMsg = { ok:true, text:"Plan imported successfully." };
+          render();
+        }
+      });
+    };
+    r.onerror = function(){ ioMsg = { ok:false, text:"Couldn't read that file." }; render(); };
+    r.readAsText(file);
+  }
+
+  /* ---------- Budget ---------- */
+  function viewBudget(){
+    var f = document.createDocumentFragment();
+    var spentEl, remEl, remLabelEl, barI, estEl, pctEl;
+    function recompute(){
+      var spent = sumAct(), est = sumEst(), total = num(state.budget.total), rem = total - spent;
+      var pct = total > 0 ? Math.min(100, (spent / total) * 100) : 0;
+      if(spentEl) spentEl.textContent = fmt(spent);
+      if(remLabelEl) remLabelEl.textContent = rem < 0 ? "Over budget" : "Remaining";
+      if(remEl) remEl.textContent = total > 0 ? fmt(Math.abs(rem)) : "\u2014";
+      if(estEl) estEl.textContent = "Estimated total " + fmt(est);
+      if(pctEl) pctEl.textContent = Math.round(pct) + "% spent";
+      if(barI) barI.style.width = pct + "%";
+    }
+
+    var top = el("div", { class:"wp-grid cols-3" });
+    var tot = el("div", { class:"wp-card" });
+    tot.appendChild(el("div", { class:"l", style:{ fontSize:"12px", color:"var(--ink-soft)" } }, "Total budget"));
+    var tr = el("div", { style:{ display:"flex", alignItems:"center", gap:"6px", marginTop:"8px" } });
+    tr.appendChild(el("span", { class:"serif", style:{ fontSize:"22px", color:"var(--ink-soft)" } }, sym()));
+    var totalInput = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"Set a target", style:{ fontSize:"18px", padding:"8px 10px" } });
+    totalInput.value = state.budget.total;
+    totalInput.addEventListener("input", function(){ state.budget.total = totalInput.value; save(); recompute(); });
+    tr.appendChild(totalInput);
+    tot.appendChild(tr);
+    top.appendChild(tot);
+
+    var c2 = el("div", { class:"wp-stat wp-card" });
+    c2.appendChild(el("div", { class:"l" }, "Spent so far"));
+    spentEl = el("div", { class:"n" }, ""); c2.appendChild(spentEl);
+    top.appendChild(c2);
+
+    var c3 = el("div", { class:"wp-stat wp-card" });
+    remLabelEl = el("div", { class:"l" }, "Remaining"); c3.appendChild(remLabelEl);
+    remEl = el("div", { class:"n" }, ""); c3.appendChild(remEl);
+    top.appendChild(c3);
+    f.appendChild(top);
+
+    f.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 2px 0" } },
+      "\u201cEstimated\u201d is what you plan or were quoted; \u201cActual\u201d is what you\u2019ve actually paid. \u201cSpent so far\u201d and \u201cRemaining\u201d add up the Actual column."));
+
+    var prog = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    var prow = el("div", { style:{ display:"flex", justifyContent:"space-between", fontSize:"13px", color:"var(--ink-soft)" } });
+    estEl = el("span", {}, ""); pctEl = el("span", {}, "");
+    prow.appendChild(estEl); prow.appendChild(pctEl);
+    prog.appendChild(prow);
+    var bar = el("div", { class:"wp-bar" }); barI = el("i", {}); bar.appendChild(barI); prog.appendChild(bar);
+    f.appendChild(prog);
+
+    var list = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
+    var head = el("div", { class:"wp-brow", style:{ marginBottom:"10px" } });
+    head.appendChild(el("span", { class:"head" }, "Category"));
+    head.appendChild(el("span", { class:"head" }, "Estimated"));
+    head.appendChild(el("span", { class:"head" }, "Actual"));
+    head.appendChild(el("span", {}));
+    list.appendChild(head);
+
+    state.budget.items.forEach(function(it){
+      var row = el("div", { class:"wp-brow", style:{ marginBottom:"10px" } });
+      var lab = el("input", { placeholder:"Category" }); lab.value = it.label;
+      lab.addEventListener("input", function(){ it.label = lab.value; save(); });
+      var est = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"0" }); est.value = it.est;
+      est.addEventListener("input", function(){ it.est = est.value; save(); recompute(); });
+      var act = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"0" }); act.value = it.act;
+      act.addEventListener("input", function(){ it.act = act.value; save(); recompute(); });
+      var del = el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){
+        state.budget.items = state.budget.items.filter(function(x){ return x.id !== it.id; }); save(); render();
+      } }, "\u00d7");
+      row.appendChild(lab); row.appendChild(est); row.appendChild(act); row.appendChild(del);
+      list.appendChild(row);
+    });
+    list.appendChild(el("button", { class:"wp-btn ghost", style:{ marginTop:"6px" }, onClick:function(){
+      state.budget.items.push({ id:uid(), label:"", est:"", act:"" }); save(); render();
+    } }, "+ Add category"));
+    f.appendChild(list);
+
+    recompute();
+    return f;
+  }
+
+  /* ---------- Vendors ---------- */
+  function chooseVendor(catId, optId){
+    var cat = find(state.vendors.categories, catId);
+    cat.chosenId = cat.chosenId === optId ? null : optId;
+    var opt = cat.options.filter(function(o){ return o.id === cat.chosenId; })[0];
+    if(opt){
+      var title = "Book & confirm " + (opt.name || cat.label);
+      var existing = state.tasks.filter(function(t){ return t.vendorKey === catId; })[0];
+      if(existing){ existing.title = title; existing.cat = cat.label; }
+      else state.tasks.push({ id:uid(), title:title, cat:cat.label, due:"", status:"todo", notes:"", images:[], vendorKey:catId });
+    } else {
+      state.tasks = state.tasks.filter(function(t){ return t.vendorKey !== catId; });
+    }
+    save(); render();
+  }
+  function find(arr, id){ return arr.filter(function(x){ return x.id === id; })[0]; }
+
+  function hearts(value, onChange){
+    var box = el("div", { class:"wp-hearts", role:"group", "aria-label":"Rating" });
+    for(var i=1;i<=5;i++){ (function(n){
+      var b = el("button", { type:"button", class: n <= value ? "on" : "", "aria-label": n + " of 5",
+        onClick:function(){ onChange(value === n ? 0 : n); } }, "\u2665");
+      box.appendChild(b);
+    })(i); }
+    return box;
+  }
+
+  function gallery(images, onAdd, onDel){
+    var g = el("div", { class:"wp-gal" });
+    (images || []).forEach(function(src, ix){
+      var th = el("div", { class:"wp-thumb" });
+      var im = el("img", { src:src, alt:"", onClick:function(){ openLightbox(src); } });
+      th.appendChild(im);
+      th.appendChild(el("button", { class:"wp-thumb-x", "aria-label":"Remove photo", onClick:function(){ onDel(ix); } }, "\u00d7"));
+      g.appendChild(th);
+    });
+    if((images || []).length < 8){
+      var lab = el("label", { class:"wp-addimg", title:"Add photos" }, el("span", {}, "+"));
+      var inp = el("input", { type:"file", accept:"image/*", multiple:true, style:{ display:"none" } });
+      inp.addEventListener("change", function(e){
+        var files = Array.prototype.slice.call(e.target.files || []).filter(function(file){ return file.type.indexOf("image/") === 0; });
+        var room = Math.max(0, 8 - (images || []).length);
+        files = files.slice(0, room);
+        e.target.value = "";
+        if(!files.length) return;
+        lab.classList.add("busy"); lab.firstChild.textContent = "\u2026";
+        var urls = [];
+        var chain = Promise.resolve();
+        files.forEach(function(file){ chain = chain.then(function(){ return compressImage(file).then(function(u){ urls.push(u); }, function(){}); }); });
+        chain.then(function(){ if(urls.length) onAdd(urls); });
+      });
+      lab.appendChild(inp);
+      g.appendChild(lab);
+    }
+    return g;
+  }
+
+  function viewVendors(){
+    var f = document.createDocumentFragment();
+    var intro = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    intro.appendChild(el("div", { class:"eyebrow" }, "How this works"));
+    intro.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 0", maxWidth:"620px" } },
+      "List every option you're weighing under each category \u2014 say five venues \u2014 with photos, price, contact, and notes. When you decide, tap Choose. That pick is highlighted here, shows on your Overview, and adds a \u201cbook & confirm\u201d card to your Tasks."));
+    var addRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"16px", flexWrap:"wrap" } });
+    var newCat = el("input", { placeholder:"Add a category (e.g. Officiant)", style:{ maxWidth:"280px" } });
+    function addCat(){ var v = newCat.value.trim(); if(!v) return; state.vendors.categories.push({ id:uid(), label:v, chosenId:null, options:[] }); save(); render(); }
+    newCat.addEventListener("keydown", function(e){ if(e.key === "Enter") addCat(); });
+    addRow.appendChild(newCat);
+    addRow.appendChild(el("button", { class:"wp-btn", onClick:addCat }, "Add category"));
+    intro.appendChild(addRow);
+    f.appendChild(intro);
+
+    state.vendors.categories.forEach(function(cat){
+      var card = el("div", { class:"wp-card wp-vcat" });
+      var ch = el("div", { class:"wp-cathead" });
+      var name = el("input", { class:"wp-catname", placeholder:"Category name" }); name.value = cat.label;
+      name.addEventListener("input", function(){ cat.label = name.value; save(); });
+      ch.appendChild(name);
+      var tools = el("div", { style:{ display:"flex", gap:"8px", alignItems:"center" } });
+      tools.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){
+        cat.options.push({ id:uid(), name:"", price:"", contact:"", link:"", notes:"", rating:0, images:[] }); save(); render();
+      } }, "+ Add option"));
+      tools.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){
+        state.vendors.categories = state.vendors.categories.filter(function(c){ return c.id !== cat.id; });
+        state.tasks = state.tasks.filter(function(t){ return t.vendorKey !== cat.id; });
+        save(); render();
+      } }, "\u00d7"));
+      ch.appendChild(tools);
+      card.appendChild(ch);
+
+      if(cat.options.length === 0){
+        card.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"4px" } }, "No options yet. Add the ones you're comparing."));
+      } else {
+        var grid = el("div", { class:"wp-vgrid" });
+        cat.options.forEach(function(o){
+          var chosen = cat.chosenId === o.id;
+          var vc = el("div", { class:"wp-vcard" + (chosen ? " chosen" : "") });
+          if(chosen) vc.appendChild(el("span", { class:"wp-ribbon" }, "Chosen"));
+          var nm = el("input", { class:"wp-vname", placeholder:"Option name" }); nm.value = o.name;
+          nm.addEventListener("input", function(){ o.name = nm.value; save(); });
+          vc.appendChild(nm);
+          vc.appendChild(hearts(o.rating || 0, function(v){ o.rating = v; save(); render(); }));
+          vc.appendChild(gallery(o.images, function(urls){ o.images = (o.images||[]).concat(urls); save(); render(); }, function(ix){ o.images.splice(ix,1); save(); render(); }));
+          vc.appendChild(vfield("Price / quote", o, "price", "e.g. \u20b1120,000"));
+          vc.appendChild(vfield("Contact", o, "contact", "Phone or email"));
+          vc.appendChild(vfield("Website / page", o, "link", "Link or @handle"));
+          vc.appendChild(vfield("Notes", o, "notes", "What's included, pros & cons\u2026", true));
+          var foot = el("div", { class:"wp-vfoot" });
+          foot.appendChild(el("button", { class:"wp-btn" + (chosen ? "" : " ghost"), style:{ flex:"1" }, onClick:function(){ chooseVendor(cat.id, o.id); } }, chosen ? "\u2713 Chosen" : "Choose"));
+          foot.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Delete option", onClick:function(){
+            var wasChosen = cat.chosenId === o.id;
+            cat.options = cat.options.filter(function(x){ return x.id !== o.id; });
+            if(wasChosen){ cat.chosenId = null; state.tasks = state.tasks.filter(function(t){ return t.vendorKey !== cat.id; }); }
+            save(); render();
+          } }, "\u00d7"));
+          vc.appendChild(foot);
+          if(chosen){
+            var vs = vendorBookStatus(cat.id);
+            vc.appendChild(el("div", { class:"wp-vnote" }, vs.cls === "booked" ? "Booked \u2713" : (vs.cls === "booking" ? "Booking in progress \u2014 see Tasks" : "Decided \u2014 book it in Tasks")));
+          }
+          grid.appendChild(vc);
+        });
+        card.appendChild(grid);
+      }
+      f.appendChild(card);
+    });
+    return f;
+  }
+
+  function vfield(labelText, obj, key, placeholder, area){
+    var inp = el(area ? "textarea" : "input", { placeholder: placeholder || "" });
+    if(area) inp.style.minHeight = "64px";
+    inp.value = obj[key] || "";
+    inp.addEventListener("input", function(){ obj[key] = inp.value; save(); });
+    return el("label", { class:"wp-vf" }, [ el("span", {}, labelText), inp ]);
+  }
+
+  /* ---------- Tasks ---------- */
+  function viewTasks(){
+    var f = document.createDocumentFragment();
+    var addCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    addCard.appendChild(el("div", { class:"eyebrow" }, "Add a task"));
+    var row = el("div", { class:"wp-grid", style:{ gridTemplateColumns:"2fr 1fr 1fr auto", gap:"10px", marginTop:"12px", alignItems:"end" } });
+    var tIn = el("input", { placeholder:"e.g. Book the florist" });
+    var cIn = el("input", { placeholder:"Optional" });
+    var dIn = el("input", { type:"date" });
+    function add(){
+      var v = tIn.value.trim(); if(!v) return;
+      state.tasks.push({ id:uid(), title:v, cat:cIn.value.trim(), due:dIn.value, status:"todo", notes:"", images:[] });
+      save(); render();
+    }
+    tIn.addEventListener("keydown", function(e){ if(e.key === "Enter") add(); });
+    row.appendChild(el("label", { class:"wp-field", style:{ margin:"0" } }, [ el("span", {}, "What needs doing"), tIn ]));
+    row.appendChild(el("label", { class:"wp-field", style:{ margin:"0" } }, [ el("span", {}, "Category"), cIn ]));
+    row.appendChild(el("label", { class:"wp-field", style:{ margin:"0" } }, [ el("span", {}, "Due"), dIn ]));
+    row.appendChild(el("button", { class:"wp-btn", onClick:add }, "Add"));
+    addCard.appendChild(row);
+    addCard.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Tap any card to add dates, details, and photos."));
+    f.appendChild(addCard);
+
+    var board = el("div", { class:"wp-board" });
+    STAGES.forEach(function(stage){
+      var list = state.tasks.filter(function(t){ return t.status === stage; });
+      var col = el("div", { class:"wp-col" + (stage === "done" ? " done" : "") });
+      var h3 = el("h3", {}); h3.appendChild(document.createTextNode(STAGE_LABEL[stage] + " ")); h3.appendChild(el("b", {}, String(list.length)));
+      col.appendChild(h3);
+      if(list.length === 0) col.appendChild(el("div", { class:"wp-empty" }, "Nothing here yet."));
+      list.forEach(function(t){
+        var i = STAGES.indexOf(t.status);
+        var imgs = t.images || [];
+        var tc = el("div", { class:"wp-tcard" + (stage === "done" ? " done" : "") });
+        var body = el("div", { class:"wp-tbody", role:"button", tabindex:"0", onClick:function(){ openTaskModal(t.id); } });
+        body.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openTaskModal(t.id); } });
+        if(imgs.length){
+          var ban = el("div", { class:"wp-tbanner" });
+          ban.appendChild(el("img", { src:imgs[0], alt:"" }));
+          if(imgs.length > 1) ban.appendChild(el("span", { class:"wp-tcount" }, "+" + (imgs.length - 1)));
+          body.appendChild(ban);
+        }
+        body.appendChild(el("div", { class:"ttl" }, t.title));
+        if(t.cat || t.due){
+          var meta = el("div", { class:"wp-tmeta" });
+          if(t.cat) meta.appendChild(el("span", { class:"wp-chip" }, t.cat));
+          if(t.due) meta.appendChild(el("span", { class:"wp-due" }, fmtDue(t.due)));
+          body.appendChild(meta);
+        }
+        if(t.notes) body.appendChild(el("div", { class:"wp-tnote" }, t.notes));
+        tc.appendChild(body);
+        var tools = el("div", { class:"wp-tools" });
+        var back = el("button", { class:"wp-iconbtn", "aria-label":"Move back", onClick:function(){ moveTask(t.id, -1); } }, "\u2039");
+        if(i === 0) back.disabled = true;
+        var fwd = el("button", { class:"wp-iconbtn", "aria-label":"Move forward", onClick:function(){ moveTask(t.id, 1); } }, "\u203a");
+        if(i === STAGES.length - 1) fwd.disabled = true;
+        var del = el("button", { class:"wp-iconbtn", "aria-label":"Delete task", onClick:function(){ state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; }); save(); render(); } }, "\u00d7");
+        tools.appendChild(back); tools.appendChild(fwd); tools.appendChild(del);
+        tc.appendChild(tools);
+        col.appendChild(tc);
+      });
+      board.appendChild(col);
+    });
+    f.appendChild(board);
+    return f;
+  }
+
+  function moveTask(id, dir){
+    var t = find(state.tasks, id); if(!t) return;
+    var i = STAGES.indexOf(t.status);
+    t.status = STAGES[Math.min(STAGES.length - 1, Math.max(0, i + dir))];
+    save(); render();
+  }
+
+  /* task edit modal */
+  function openTaskModal(id){
+    closeOverlays();
+    var t = find(state.tasks, id); if(!t) return;
+    var overlay = el("div", { class:"wp-modal", onClick:function(){ closeOverlays(); render(); } });
+    var card = el("div", { class:"wp-modal-card", onClick:function(e){ e.stopPropagation(); } });
+    var head = el("div", { class:"wp-modal-head" });
+    head.appendChild(el("div", { class:"eyebrow" }, "Edit task"));
+    head.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Close", onClick:function(){ closeOverlays(); render(); } }, "\u00d7"));
+    card.appendChild(head);
+
+    var titleIn = el("input", { placeholder:"What needs doing" }); titleIn.value = t.title;
+    titleIn.addEventListener("input", function(){ t.title = titleIn.value; save(); });
+    card.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Task"), titleIn ]));
+
+    var g = el("div", { class:"wp-grid cols-2" });
+    var catIn = el("input", { placeholder:"Optional" }); catIn.value = t.cat || "";
+    catIn.addEventListener("input", function(){ t.cat = catIn.value; save(); });
+    g.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Category"), catIn ]));
+    var dueIn = el("input", { type:"date" }); dueIn.value = t.due || "";
+    dueIn.addEventListener("input", function(){ t.due = dueIn.value; save(); });
+    g.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Due date"), dueIn ]));
+    card.appendChild(g);
+
+    var notesIn = el("textarea", { placeholder:"Notes, links, contacts, reminders\u2026" }); notesIn.value = t.notes || "";
+    notesIn.addEventListener("input", function(){ t.notes = notesIn.value; save(); });
+    card.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Details"), notesIn ]));
+
+    card.appendChild(el("span", { class:"wp-fieldlabel" }, "Photos"));
+    var galWrap = el("div", {});
+    function refreshGal(){
+      galWrap.innerHTML = "";
+      var g2 = gallery(t.images, function(urls){ t.images = (t.images||[]).concat(urls); save(); refreshGal(); }, function(ix){ t.images.splice(ix,1); save(); refreshGal(); });
+      g2.style.marginTop = "6px";
+      galWrap.appendChild(g2);
+    }
+    refreshGal();
+    card.appendChild(galWrap);
+
+    var foot = el("div", { class:"wp-modal-foot" });
+    foot.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; }); save(); closeOverlays(); render(); } }, "Delete task"));
+    foot.appendChild(el("button", { class:"wp-btn", onClick:function(){ closeOverlays(); render(); } }, "Done"));
+    card.appendChild(foot);
+
+    overlay.appendChild(card);
+    app.appendChild(overlay);
+  }
+
+  function openLightbox(src){
+    var lb = el("div", { class:"wp-lightbox", role:"dialog", "aria-label":"Photo preview", onClick:function(){ lb.remove(); } });
+    lb.appendChild(el("img", { src:src, alt:"Photo", onClick:function(e){ e.stopPropagation(); } }));
+    lb.appendChild(el("button", { class:"wp-lightbox-x", "aria-label":"Close", onClick:function(){ lb.remove(); } }, "\u00d7"));
+    app.appendChild(lb);
+  }
+  function closeOverlays(){
+    var m = document.querySelectorAll(".wp-modal, .wp-lightbox");
+    for(var i=0;i<m.length;i++) m[i].remove();
+  }
+
+  /* ---------- Seating ---------- */
+  function seatedGuestIds(){
+    var ids = {};
+    state.seating.tables.forEach(function(t){ t.seats.forEach(function(s){ if(s.guestId) ids[s.guestId] = true; }); });
+    return ids;
+  }
+  function guestName(id){ var g = find(state.seating.guests, id); return g ? g.name : ""; }
+  function seatLocation(guestId){
+    for(var i=0;i<state.seating.tables.length;i++){ var t = state.seating.tables[i];
+      for(var j=0;j<t.seats.length;j++){ if(t.seats[j].guestId === guestId) return t.name || ("Table " + (i+1)); } }
+    return null;
+  }
+  function initials(name){
+    var p = name.trim().split(/\s+/);
+    if(p.length === 1) return p[0].slice(0,2).toUpperCase();
+    return (p[0][0] + p[p.length-1][0]).toUpperCase();
+  }
+
+  function viewSeating(){
+    var f = document.createDocumentFragment();
+
+    var gCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    gCard.appendChild(el("div", { class:"eyebrow" }, "Guests"));
+    var addRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap" } });
+    var gin = el("input", { placeholder:"Guest name", style:{ maxWidth:"260px" } });
+    function addGuest(){ var v = gin.value.trim(); if(!v) return; state.seating.guests.push({ id:uid(), name:v }); save(); render(); }
+    gin.addEventListener("keydown", function(e){ if(e.key === "Enter") addGuest(); });
+    addRow.appendChild(gin);
+    addRow.appendChild(el("button", { class:"wp-btn", onClick:addGuest }, "Add guest"));
+    gCard.appendChild(addRow);
+
+    var seated = seatedGuestIds();
+    var seatedCount = state.seating.guests.filter(function(g){ return seated[g.id]; }).length;
+    if(state.seating.guests.length){
+      var chips = el("div", { class:"wp-guestlist" });
+      state.seating.guests.forEach(function(g){
+        var loc = seatLocation(g.id);
+        var chip = el("div", { class:"wp-guestchip" + (loc ? " seated" : "") });
+        chip.appendChild(el("span", { class:"wp-gname" }, g.name));
+        chip.appendChild(el("span", { class:"wp-gloc" }, loc ? loc : "unseated"));
+        chip.appendChild(el("button", { class:"wp-gx", "aria-label":"Remove guest", onClick:function(){
+          state.seating.guests = state.seating.guests.filter(function(x){ return x.id !== g.id; });
+          state.seating.tables.forEach(function(t){ t.seats.forEach(function(s){ if(s.guestId === g.id) s.guestId = null; }); });
+          save(); render();
+        } }, "\u00d7"));
+        chips.appendChild(chip);
+      });
+      gCard.appendChild(chips);
+      gCard.appendChild(el("div", { style:{ fontSize:"12px", color:"var(--ink-soft)", marginTop:"10px" } }, seatedCount + " of " + state.seating.guests.length + " seated"));
+    } else {
+      gCard.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"12px" } }, "Add your guests, then drop a table below and tap a seat to place them."));
+    }
+    f.appendChild(gCard);
+
+    var ctrl = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    ctrl.appendChild(el("div", { class:"eyebrow" }, "Add a table"));
+    var crow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap", alignItems:"center" } });
+    var seatSel = el("select", { style:{ maxWidth:"130px" } });
+    [2,4,6,8,10,12].forEach(function(n){ var o = el("option", { value:String(n) }, n + " seats"); if(n === 8) o.selected = true; seatSel.appendChild(o); });
+    crow.appendChild(seatSel);
+    crow.appendChild(el("button", { class:"wp-btn", onClick:function(){ addTable("round", Number(seatSel.value)); } }, "+ Round table"));
+    crow.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ addTable("rect", Number(seatSel.value)); } }, "+ Long table"));
+    ctrl.appendChild(crow);
+    ctrl.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Drag a table by its \u2b0e handle to move it around the canvas. Tap a seat to assign a guest or give it a name."));
+    f.appendChild(ctrl);
+
+    var dCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    dCard.appendChild(el("div", { class:"eyebrow" }, "Add decor & layout"));
+    var dRow = el("div", { class:"wp-decorpalette" });
+    ["stage","aisle","dance","arch","entrance","bar","buffet","cake","gifts","dj","restroom","plant","furniture","text"].forEach(function(type){
+      var pr = PROP_PRESETS[type];
+      dRow.appendChild(el("button", { class:"wp-btn ghost wp-decorbtn", onClick:function(){ addProp(type); } },
+        (pr.emoji ? pr.emoji + " " : "") + pr.label));
+    });
+    dCard.appendChild(dRow);
+    dCard.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Drag any piece to move it, drag its bottom-right corner to resize, and tap \u270e to rename it. Use Aisle and Stage to lay out the ceremony."));
+    f.appendChild(dCard);
+
+    var wrapEl = el("div", { class:"wp-boardwrap" });
+    var sizer = el("div", { class:"wp-boardsizer" });
+    var boardEl = el("div", { class:"wp-seatboard" });
+    state.seating.props.forEach(function(pr){ boardEl.appendChild(renderProp(pr, boardEl)); });
+    state.seating.tables.forEach(function(t){ boardEl.appendChild(renderTable(t, boardEl)); });
+    if(state.seating.tables.length === 0 && state.seating.props.length === 0){
+      boardEl.appendChild(el("div", { class:"wp-boardhint" }, "Your seating canvas \u2014 add a table or decor above to begin."));
+    }
+    sizer.appendChild(boardEl);
+    wrapEl.appendChild(sizer);
+
+    var zlabel;
+    function applyZoom(){
+      boardEl.style.transform = "scale(" + seatZoom + ")";
+      sizer.style.width = (1000 * seatZoom) + "px";
+      sizer.style.height = (640 * seatZoom) + "px";
+      if(zlabel) zlabel.textContent = Math.round(seatZoom * 100) + "%";
+    }
+    var zoomBar = el("div", { class:"wp-zoombar" });
+    zoomBar.appendChild(el("span", { class:"wp-zttl" }, "Canvas zoom"));
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Zoom out", onClick:function(){ seatZoom = Math.max(0.4, Math.round((seatZoom - 0.1) * 20) / 20); applyZoom(); } }, "\u2212"));
+    zlabel = el("span", { class:"wp-zval" }, Math.round(seatZoom * 100) + "%");
+    zoomBar.appendChild(zlabel);
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Zoom in", onClick:function(){ seatZoom = Math.min(2, Math.round((seatZoom + 0.1) * 20) / 20); applyZoom(); } }, "+"));
+    zoomBar.appendChild(el("button", { class:"wp-btn ghost wp-zreset", onClick:function(){ seatZoom = 1; applyZoom(); } }, "Reset"));
+    f.appendChild(zoomBar);
+    f.appendChild(wrapEl);
+    applyZoom();
+    return f;
+  }
+
+  function addTable(shape, seatCount){
+    var seats = []; for(var i=0;i<seatCount;i++) seats.push({ id:uid(), label:"", guestId:null });
+    var n = state.seating.tables.length;
+    var col = n % 3, row = Math.floor(n / 3);
+    state.seating.tables.push({ id:uid(), name:"Table " + (n+1), shape:shape, rot:0, x: 24 + col*300, y: 20 + row*272, seats:seats });
+    save(); render();
+  }
+
+  function renderTable(t, boardEl){
+    var n = t.seats.length;
+    var wrap = el("div", { class:"wp-table " + (t.shape === "rect" ? "rect" : "round") });
+    wrap.style.left = (t.x||0) + "px"; wrap.style.top = (t.y||0) + "px";
+
+    var head = el("div", { class:"wp-thead" });
+    var grip = el("div", { class:"wp-grip", "aria-label":"Drag table" }, "\u2b0e");
+    head.appendChild(grip);
+    var nameIn = el("input", { class:"wp-tname", placeholder:"Table" }); nameIn.value = t.name;
+    nameIn.addEventListener("input", function(){ t.name = nameIn.value; save(); });
+    head.appendChild(nameIn);
+    head.appendChild(el("button", { class:"wp-gx", "aria-label":"Delete table", onClick:function(){
+      state.seating.tables = state.seating.tables.filter(function(x){ return x.id !== t.id; }); save(); render();
+    } }, "\u00d7"));
+    wrap.appendChild(head);
+
+    var area = el("div", { class:"wp-tarea" });
+    var seatSize = 44;
+    if(t.shape === "round"){
+      var D = Math.max(170, 120 + n*10);
+      area.style.width = D + "px"; area.style.height = D + "px";
+      var center = el("div", { class:"wp-tcenter" });
+      center.style.width = (D*0.42) + "px"; center.style.height = (D*0.42) + "px";
+      center.style.left = (D*0.29) + "px"; center.style.top = (D*0.29) + "px";
+      area.appendChild(center);
+      var R = D/2 - seatSize/2 - 4;
+      for(var i=0;i<n;i++){
+        var ang = -Math.PI/2 + i*(2*Math.PI/n);
+        var sx = D/2 + R*Math.cos(ang) - seatSize/2;
+        var sy = D/2 + R*Math.sin(ang) - seatSize/2;
+        area.appendChild(seatChip(t, t.seats[i], i, sx, sy, seatSize));
+      }
+    } else {
+      var per = Math.ceil(n/2);
+      var W = per*(seatSize+8) + 12;
+      var H = 150;
+      area.style.width = W + "px"; area.style.height = H + "px";
+      var rectC = el("div", { class:"wp-tcenter rect" });
+      rectC.style.left = "6px"; rectC.style.width = "calc(100% - 12px)";
+      rectC.style.top = (seatSize+8) + "px"; rectC.style.height = (H - 2*(seatSize+8)) + "px";
+      area.appendChild(rectC);
+      for(var j=0;j<n;j++){
+        var top = j < per;
+        var idx = top ? j : (j - per);
+        var sx2 = 6 + idx*(seatSize+8);
+        var sy2 = top ? 2 : (H - seatSize - 2);
+        area.appendChild(seatChip(t, t.seats[j], j, sx2, sy2, seatSize));
+      }
+    }
+    wrap.appendChild(area);
+    if(t.rot){ wrap.style.transform = "rotate(" + t.rot + "deg)"; }
+    var rot = el("div", { class:"wp-rotate", "aria-label":"Rotate table", title:"Drag to rotate" }, "\u21bb");
+    wrap.appendChild(rot);
+    enableDrag(grip, wrap, t, boardEl);
+    enableRotate(rot, wrap, t);
+    return wrap;
+  }
+
+  function seatChip(t, seat, index, x, y, size){
+    var filled = !!(seat.guestId || seat.label);
+    var label = seat.guestId ? guestName(seat.guestId) : (seat.label || String(index+1));
+    var chip = el("button", { class:"wp-seat" + (filled ? " filled" : ""), title:label, onClick:function(e){ e.stopPropagation(); openSeatPicker(t.id, seat.id); } });
+    chip.style.left = x + "px"; chip.style.top = y + "px"; chip.style.width = size + "px"; chip.style.height = size + "px";
+    chip.appendChild(el("span", {}, filled ? initials(label) : String(index+1)));
+    return chip;
+  }
+
+  function enableDrag(handle, target, t, boardEl){
+    handle.style.touchAction = "none";
+    handle.addEventListener("pointerdown", function(e){
+      e.preventDefault();
+      try { handle.setPointerCapture(e.pointerId); } catch(_){}
+      var sx = e.clientX, sy = e.clientY, ox = t.x||0, oy = t.y||0;
+      function mv(ev){
+        var nx = ox + (ev.clientX - sx) / seatZoom;
+        var ny = oy + (ev.clientY - sy) / seatZoom;
+        nx = Math.max(0, Math.min(boardEl.scrollWidth - target.offsetWidth, nx));
+        ny = Math.max(0, Math.min(boardEl.scrollHeight - target.offsetHeight, ny));
+        target.style.left = nx + "px"; target.style.top = ny + "px";
+        t.x = nx; t.y = ny;
+      }
+      function up(){ document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); save(); }
+      document.addEventListener("pointermove", mv);
+      document.addEventListener("pointerup", up);
+    });
+  }
+
+  // Drag a rotate handle around the element's center to spin it.
+  function enableRotate(handle, target, item){
+    handle.style.touchAction = "none";
+    handle.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      try { handle.setPointerCapture(e.pointerId); } catch(_){}
+      var rect = target.getBoundingClientRect();
+      var cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+      function mv(ev){
+        var ang = Math.round(Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI + 90);
+        [0,45,90,135,180,225,270,315,360].forEach(function(s){ if(Math.abs(ang - s) <= 4) ang = s; });
+        item.rot = ((ang % 360) + 360) % 360;
+        target.style.transform = "rotate(" + item.rot + "deg)";
+      }
+      function up(){ document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); save(); }
+      document.addEventListener("pointermove", mv);
+      document.addEventListener("pointerup", up);
+    });
+  }
+
+  function openSeatPicker(tableId, seatId){
+    closeOverlays();
+    var t = find(state.seating.tables, tableId); if(!t) return;
+    var seat = find(t.seats, seatId); if(!seat) return;
+    var overlay = el("div", { class:"wp-modal", onClick:function(){ closeOverlays(); render(); } });
+    var card = el("div", { class:"wp-modal-card", onClick:function(e){ e.stopPropagation(); } });
+    var head = el("div", { class:"wp-modal-head" });
+    head.appendChild(el("div", { class:"eyebrow" }, "Assign seat"));
+    head.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Close", onClick:function(){ closeOverlays(); render(); } }, "\u00d7"));
+    card.appendChild(head);
+
+    var seated = seatedGuestIds();
+    var available = state.seating.guests.filter(function(g){ return !seated[g.id] || g.id === seat.guestId; });
+    card.appendChild(el("span", { class:"wp-fieldlabel" }, "Choose a guest"));
+    if(available.length){
+      var listBox = el("div", { class:"wp-picklist" });
+      available.forEach(function(g){
+        listBox.appendChild(el("button", { class:"wp-pickrow" + (seat.guestId === g.id ? " on" : ""), onClick:function(){
+          seat.guestId = g.id; seat.label = ""; save(); closeOverlays(); render();
+        } }, g.name));
+      });
+      card.appendChild(listBox);
+    } else {
+      card.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"6px" } }, "All guests are seated. Add more in the Guests list above."));
+    }
+
+    var nameIn = el("input", { placeholder:"e.g. Grandma, Reserved\u2026" }); nameIn.value = seat.guestId ? "" : (seat.label || "");
+    nameIn.addEventListener("keydown", function(e){ if(e.key === "Enter"){ seat.label = nameIn.value.trim(); seat.guestId = null; save(); closeOverlays(); render(); } });
+    card.appendChild(el("label", { class:"wp-field", style:{ marginTop:"14px" } }, [ el("span", {}, "Or a custom name"), nameIn ]));
+
+    var foot = el("div", { class:"wp-modal-foot" });
+    foot.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ seat.guestId = null; seat.label = ""; save(); closeOverlays(); render(); } }, "Clear seat"));
+    foot.appendChild(el("button", { class:"wp-btn", onClick:function(){
+      var v = nameIn.value.trim(); if(v){ seat.label = v; seat.guestId = null; } save(); closeOverlays(); render();
+    } }, "Done"));
+    card.appendChild(foot);
+
+    overlay.appendChild(card);
+    app.appendChild(overlay);
+  }
+
+  var PROP_PRESETS = {
+    stage:     { label:"Stage \u2014 Bride & Groom", w:260, h:120, emoji:"\ud83d\udc8d", cls:"stage" },
+    aisle:     { label:"Aisle",        w:90,  h:300, emoji:"", cls:"aisle" },
+    dance:     { label:"Dance floor",  w:200, h:200, emoji:"\ud83d\udc83", cls:"dance" },
+    arch:      { label:"Arch / Altar", w:150, h:64,  emoji:"\ud83c\udf3f", cls:"decor" },
+    entrance:  { label:"Entrance",     w:120, h:54,  emoji:"\ud83d\udeaa", cls:"decor" },
+    bar:       { label:"Bar",          w:160, h:62,  emoji:"\ud83c\udf78", cls:"decor" },
+    buffet:    { label:"Buffet",       w:200, h:62,  emoji:"\ud83c\udf7d\ufe0f", cls:"decor" },
+    cake:      { label:"Cake table",   w:96,  h:96,  emoji:"\ud83c\udf82", cls:"decor" },
+    gifts:     { label:"Gifts",        w:112, h:74,  emoji:"\ud83c\udf81", cls:"decor" },
+    dj:        { label:"DJ booth",     w:112, h:74,  emoji:"\ud83c\udfa7", cls:"decor" },
+    restroom:  { label:"Restroom",     w:92,  h:64,  emoji:"\ud83d\udebb", cls:"decor" },
+    plant:     { label:"Greenery",     w:72,  h:72,  emoji:"\ud83e\udeb4", cls:"decor" },
+    furniture: { label:"Furniture",    w:112, h:74,  emoji:"\ud83e\ude91", cls:"decor" },
+    text:      { label:"Label",        w:130, h:44,  emoji:"", cls:"text" }
+  };
+
+  function addProp(type){
+    var pr = PROP_PRESETS[type] || PROP_PRESETS.furniture;
+    var n = state.seating.props.length;
+    state.seating.props.push({ id:uid(), type:type, label:pr.label, x: 300 + (n%3)*30, y: 24 + (n%6)*26, w:pr.w, h:pr.h, rot:0 });
+    save(); render();
+  }
+
+  function renderProp(pr, boardEl){
+    var preset = PROP_PRESETS[pr.type] || PROP_PRESETS.furniture;
+    var box = el("div", { class:"wp-prop " + preset.cls });
+    box.style.left = (pr.x||0) + "px"; box.style.top = (pr.y||0) + "px";
+    box.style.width = (pr.w||preset.w) + "px"; box.style.height = (pr.h||preset.h) + "px";
+
+    var lbl = el("div", { class:"wp-proplabel" }, (preset.emoji ? preset.emoji + " " : "") + (pr.label || ""));
+    box.appendChild(lbl);
+
+    var edit = el("button", { class:"wp-prop-btn wp-prop-edit", "aria-label":"Rename", onClick:function(e){ e.stopPropagation(); openPropRename(pr.id); } }, "\u270e");
+    edit.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
+    box.appendChild(edit);
+    var del = el("button", { class:"wp-prop-btn wp-prop-del", "aria-label":"Delete", onClick:function(e){ e.stopPropagation();
+      state.seating.props = state.seating.props.filter(function(x){ return x.id !== pr.id; }); save(); render();
+    } }, "\u00d7");
+    del.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
+    box.appendChild(del);
+
+    var rz = el("div", { class:"wp-prop-resize", "aria-label":"Resize" });
+    box.appendChild(rz);
+
+    var rot = el("div", { class:"wp-rotate wp-prop-rotate", "aria-label":"Rotate", title:"Drag to rotate" }, "\u21bb");
+    rot.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
+    box.appendChild(rot);
+    if(pr.rot){ box.style.transform = "rotate(" + pr.rot + "deg)"; }
+
+    enablePropDrag(box, pr, boardEl);
+    enablePropResize(rz, box, pr, boardEl, preset);
+    enableRotate(rot, box, pr);
+    return box;
+  }
+
+  function enablePropDrag(box, pr, boardEl){
+    box.style.touchAction = "none";
+    box.addEventListener("pointerdown", function(e){
+      if(e.target && e.target.classList && (e.target.classList.contains("wp-prop-resize") || e.target.classList.contains("wp-prop-btn") || e.target.classList.contains("wp-rotate"))) return;
+      e.preventDefault();
+      try { box.setPointerCapture(e.pointerId); } catch(_){}
+      var sx = e.clientX, sy = e.clientY, ox = pr.x||0, oy = pr.y||0;
+      function mv(ev){
+        var nx = Math.max(0, Math.min(boardEl.scrollWidth - box.offsetWidth, ox + (ev.clientX - sx) / seatZoom));
+        var ny = Math.max(0, Math.min(boardEl.scrollHeight - box.offsetHeight, oy + (ev.clientY - sy) / seatZoom));
+        box.style.left = nx + "px"; box.style.top = ny + "px"; pr.x = nx; pr.y = ny;
+      }
+      function up(){ document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); save(); }
+      document.addEventListener("pointermove", mv);
+      document.addEventListener("pointerup", up);
+    });
+  }
+
+  function enablePropResize(handle, box, pr, boardEl, preset){
+    handle.style.touchAction = "none";
+    handle.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      try { handle.setPointerCapture(e.pointerId); } catch(_){}
+      var sx = e.clientX, sy = e.clientY, ow = pr.w||preset.w, oh = pr.h||preset.h;
+      function mv(ev){
+        var nw = Math.max(40, Math.min(boardEl.scrollWidth - (pr.x||0), ow + (ev.clientX - sx) / seatZoom));
+        var nh = Math.max(30, Math.min(boardEl.scrollHeight - (pr.y||0), oh + (ev.clientY - sy) / seatZoom));
+        box.style.width = nw + "px"; box.style.height = nh + "px"; pr.w = nw; pr.h = nh;
+      }
+      function up(){ document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); save(); }
+      document.addEventListener("pointermove", mv);
+      document.addEventListener("pointerup", up);
+    });
+  }
+
+  function openPropRename(propId){
+    closeOverlays();
+    var pr = find(state.seating.props, propId); if(!pr) return;
+    var overlay = el("div", { class:"wp-modal", onClick:function(){ closeOverlays(); render(); } });
+    var card = el("div", { class:"wp-modal-card", onClick:function(e){ e.stopPropagation(); } });
+    var head = el("div", { class:"wp-modal-head" });
+    head.appendChild(el("div", { class:"eyebrow" }, "Rename"));
+    head.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Close", onClick:function(){ closeOverlays(); render(); } }, "\u00d7"));
+    card.appendChild(head);
+    var inp = el("input", { placeholder:"Label" }); inp.value = pr.label || "";
+    inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ pr.label = inp.value; save(); closeOverlays(); render(); } });
+    card.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Name this piece"), inp ]));
+    var foot = el("div", { class:"wp-modal-foot" });
+    foot.appendChild(el("span", {}));
+    foot.appendChild(el("button", { class:"wp-btn", onClick:function(){ pr.label = inp.value; save(); closeOverlays(); render(); } }, "Save"));
+    card.appendChild(foot);
+    overlay.appendChild(card);
+    app.appendChild(overlay);
+    setTimeout(function(){ try { inp.focus(); } catch(_){} }, 30);
+  }
+
+  var VIEW = { overview:viewOverview, client:viewClient, details:viewDetails, budget:viewBudget, vendors:viewVendors, tasks:viewTasks, seating:viewSeating };
+
+  function render(){
+    closeOverlaysKeepModal();
+    if(COORD && (appMode === "home" || !active())){
+      app.style.removeProperty("--rose"); app.style.removeProperty("--rose-deep"); app.style.removeProperty("--rose-soft");
+      app.style.removeProperty("--sage"); app.style.removeProperty("--sage-soft"); app.style.removeProperty("--gold");
+      renderHome();
+      return;
+    }
+    if(!COORD && tab === "client") tab = "overview";
+    setTheme();
+    var wrap = el("div", { class:"wp-wrap" });
+    if(COORD){
+      var back = el("div", { class:"wp-backbar" });
+      back.appendChild(el("button", { class:"wp-backbtn", onClick:function(){ backToHome(); } }, "\u2190 All weddings"));
+      var m = active().meta;
+      back.appendChild(el("span", { class:"wp-backclient" }, (m.clientName ? m.clientName : "Wedding") + (m.status ? "  \u00b7  " + m.status : "")));
+      wrap.appendChild(back);
+    }
+    wrap.appendChild(header());
+    wrap.appendChild(nav());
+    var v = el("div", { class:"wp-view" });
+    v.appendChild(VIEW[tab]());
+    wrap.appendChild(v);
+    wrap.appendChild(footer());
+    app.innerHTML = "";
+    app.appendChild(wrap);
+  }
+  function closeOverlaysKeepModal(){ /* overlays live on body; render only rebuilds #app, so nothing to do */ }
+
+  function openWedding(id){ biz.activeId = id; var w = active(); if(!w) return; state = w.plan; appMode = "wedding"; tab = "overview"; save(); render(); }
+  function backToHome(){ appMode = "home"; biz.activeId = null; save(); render(); }
+  function addWedding(){
+    var w = wrapWedding(seed());
+    biz.weddings.push(w); save();
+    openWedding(w.id);
+    tab = "client";
+    render();
+  }
+
+  // Reliable in-app confirmation (works even where window.confirm is blocked).
+  function confirmDialog(opts){
+    closeOverlays();
+    var overlay = el("div", { class:"wp-modal", onClick:function(){ closeOverlays(); } });
+    var card = el("div", { class:"wp-modal-card", style:{ maxWidth:"430px" }, onClick:function(e){ e.stopPropagation(); } });
+    var head = el("div", { class:"wp-modal-head" });
+    head.appendChild(el("div", { class:"eyebrow" }, opts.title || "Please confirm"));
+    head.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Close", onClick:function(){ closeOverlays(); } }, "\u00d7"));
+    card.appendChild(head);
+    card.appendChild(el("p", { style:{ fontSize:"14px", color:"var(--ink)", margin:"6px 0 2px", lineHeight:"1.5" } }, opts.message || ""));
+    var foot = el("div", { class:"wp-modal-foot" });
+    foot.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ closeOverlays(); if(opts.onCancel) opts.onCancel(); } }, opts.cancelLabel || "Cancel"));
+    foot.appendChild(el("button", { class:"wp-btn wp-btn-danger", onClick:function(){ closeOverlays(); opts.onConfirm(); } }, opts.confirmLabel || "Delete"));
+    card.appendChild(foot);
+    overlay.appendChild(card);
+    app.appendChild(overlay);
+  }
+
+  /* ---------- Coordinator portfolio ---------- */
+  function wCouple(w){ var d = w.plan.details; var ns = [d.partner1, d.partner2].filter(Boolean); return ns.length ? ns.join(" & ") : (w.meta.clientName || "Untitled wedding"); }
+  function wDays(w){ var d = w.plan.details.date; if(!d) return null; var dt = new Date(d + "T00:00:00"); if(isNaN(dt)) return null; var t = new Date(); t.setHours(0,0,0,0); return Math.round((dt - t) / 86400000); }
+  function wDateStr(w){ var d = w.plan.details.date; if(!d) return "Date TBD"; var dt = new Date(d + "T00:00:00"); if(isNaN(dt)) return "Date TBD"; return dt.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" }); }
+  function wProgress(w){ var ts = w.plan.tasks || []; if(!ts.length) return 0; return ts.filter(function(t){ return t.status === "done"; }).length / ts.length * 100; }
+  function chosenVenueOf(plan){ var cats = plan.vendors.categories; for(var i=0;i<cats.length;i++){ var c = cats[i]; if(c.label && c.label.toLowerCase().indexOf("venue") > -1 && c.chosenId){ var o = c.options.filter(function(x){ return x.id === c.chosenId; })[0]; if(o && (o.name||"").trim()) return o.name.trim(); } } return ""; }
+  function venueOf(w){ return chosenVenueOf(w.plan) || w.plan.details.venue || ""; }
+
+  function renderHome(){
+    var wrap = el("div", { class:"wp-wrap" });
+    var head = el("header", { class:"wp-head wp-cohead" });
+    head.appendChild(el("div", { class:"eyebrow" }, "Wedding coordination"));
+    var nameIn = el("input", { class:"wp-coname serif" }); nameIn.value = biz.name;
+    nameIn.addEventListener("input", function(){ biz.name = nameIn.value; save(); });
+    head.appendChild(nameIn);
+    head.appendChild(el("div", { class:"sub" }, biz.weddings.length + " wedding" + (biz.weddings.length !== 1 ? "s" : "") + " in your book"));
+    wrap.appendChild(head);
+
+    var ws = biz.weddings;
+    var money = function(v){ return biz.currency + Number(v || 0).toLocaleString(undefined, { maximumFractionDigits:0 }); };
+    var activeCount = ws.filter(function(w){ return w.meta.status !== "Cancelled" && w.meta.status !== "Completed"; }).length;
+    var upcoming = ws.filter(function(w){ var d = wDays(w); return d != null && d >= 0 && d <= 60 && w.meta.status !== "Cancelled"; }).length;
+    var revenue = ws.filter(function(w){ return w.meta.status !== "Cancelled"; }).reduce(function(a,w){ return a + Number(w.meta.fee || 0); }, 0);
+    var collected = ws.reduce(function(a,w){ return a + Number(w.meta.paid || 0); }, 0);
+
+    var kg = el("div", { class:"wp-grid cols-4", style:{ marginTop:"18px" } });
+    kg.appendChild(stat("Active weddings", String(activeCount)));
+    kg.appendChild(stat("Next 60 days", String(upcoming)));
+    kg.appendChild(stat("Contracted", money(revenue)));
+    kg.appendChild(stat("Outstanding", money(revenue - collected)));
+    wrap.appendChild(kg);
+    var kg2 = el("div", { class:"wp-grid cols-3", style:{ marginTop:"14px" } });
+    kg2.appendChild(stat("Collected", money(collected)));
+    kg2.appendChild(stat("Completed", String(ws.filter(function(w){ return w.meta.status === "Completed"; }).length)));
+    kg2.appendChild(stat("Leads", String(ws.filter(function(w){ return w.meta.status === "Lead"; }).length)));
+    wrap.appendChild(kg2);
+
+    var bar = el("div", { class:"wp-cobar", style:{ marginTop:"18px" } });
+    bar.appendChild(el("button", { class:"wp-btn", onClick:addWedding }, "+ Add wedding"));
+    bar.appendChild(el("button", { class:"wp-btn ghost", onClick:exportPortfolio }, "Export all"));
+    var imp = el("label", { class:"wp-btn ghost", style:{ display:"inline-block" } }, "Import portfolio");
+    var impIn = el("input", { type:"file", accept:"application/json,.json", style:{ display:"none" } });
+    impIn.addEventListener("change", function(e){ importPortfolio(e.target.files[0]); e.target.value = ""; });
+    imp.appendChild(impIn); bar.appendChild(imp);
+    wrap.appendChild(bar);
+    if(ioMsg){ wrap.appendChild(el("div", { style:{ marginTop:"10px", fontSize:"13px", fontWeight:500, color: ioMsg.ok ? "var(--sage)" : "var(--rose-deep)" } }, ioMsg.text)); }
+
+    if(ws.length === 0){
+      wrap.appendChild(el("div", { class:"wp-card", style:{ marginTop:"16px", textAlign:"center", color:"var(--ink-soft)" } }, "No weddings yet. Tap \u201c+ Add wedding\u201d to create your first client's plan."));
+    } else {
+      var sorted = ws.slice().sort(function(a,b){ return (a.plan.details.date || "9999").localeCompare(b.plan.details.date || "9999"); });
+      var grid = el("div", { class:"wp-wgrid", style:{ marginTop:"16px" } });
+      sorted.forEach(function(w){ grid.appendChild(weddingCard(w, money)); });
+      wrap.appendChild(grid);
+    }
+
+    var unsaved = hasUnsaved() && planHasContent();
+    wrap.appendChild(el("div", { class:"wp-foot" }, (unsaved ? "You have changes not yet exported \u2014 use Export all. " : "") + "Last backup: " + relTime(lastExportAt) + ". Your book saves automatically in this browser."));
+    app.innerHTML = ""; app.appendChild(wrap);
+  }
+
+  function weddingCard(w, money){
+    var d = wDays(w), prog = wProgress(w), m = w.meta, venue = venueOf(w);
+    var card = el("div", { class:"wp-wcard" });
+    var top = el("div", { class:"wp-wc-top" });
+    top.appendChild(el("span", { class:"wp-wc-status st-" + m.status.toLowerCase() }, m.status));
+    if(d != null) top.appendChild(el("span", { class:"wp-wc-days" }, d > 0 ? (d + " days") : (d === 0 ? "Today!" : "past")));
+    card.appendChild(top);
+    card.appendChild(el("div", { class:"wp-wc-name serif" }, wCouple(w)));
+    card.appendChild(el("div", { class:"wp-wc-date" }, wDateStr(w) + (venue ? (" \u00b7 " + venue) : "")));
+    var pbar = el("div", { class:"wp-bar sage", style:{ marginTop:"12px" } }); pbar.appendChild(el("i", { style:{ width: prog + "%" } })); card.appendChild(pbar);
+    card.appendChild(el("div", { class:"wp-wc-meta" }, Math.round(prog) + "% tasks \u00b7 " + money(m.fee) + " fee \u00b7 " + money(Number(m.fee||0) - Number(m.paid||0)) + " due"));
+    var btns = el("div", { class:"wp-wc-btns" });
+    btns.appendChild(el("button", { class:"wp-btn", style:{ flex:"1" }, onClick:function(){ openWedding(w.id); } }, "Open"));
+    btns.appendChild(el("button", { class:"wp-iconbtn", title:"Remove wedding", "aria-label":"Remove wedding", onClick:function(){
+      confirmDialog({
+        title:"Remove wedding",
+        message:"Remove " + wCouple(w) + " from your book? This permanently deletes this wedding's plan and can't be undone. Export a backup first if you're unsure.",
+        confirmLabel:"Delete wedding",
+        onConfirm:function(){
+          biz.weddings = biz.weddings.filter(function(x){ return x.id !== w.id; });
+          if(biz.activeId === w.id) biz.activeId = null;
+          save(); render();
+        }
+      });
+    } }, "\u00d7"));
+    card.appendChild(btns);
+    return card;
+  }
+
+  function metaField(labelText, key, type, ph){
+    var m = active().meta;
+    var inp = el(type === "textarea" ? "textarea" : "input", { placeholder: ph || "" });
+    if(type && type !== "textarea") inp.type = type;
+    if(type === "number"){ inp.min = "0"; inp.inputMode = "numeric"; }
+    inp.value = m[key] || "";
+    inp.addEventListener("input", function(){ m[key] = inp.value; save(); });
+    return el("label", { class:"wp-field" }, [ el("span", {}, labelText), inp ]);
+  }
+
+  function viewClient(){
+    var f = document.createDocumentFragment();
+    var m = active().meta;
+    var card = el("div", { class:"wp-card" });
+    card.appendChild(el("div", { class:"eyebrow" }, "Client & contract"));
+    var g = el("div", { class:"wp-grid cols-2", style:{ marginTop:"16px" } });
+    g.appendChild(metaField("Client name", "clientName", "text", "e.g. the Cruz family"));
+    var stsel = el("select", {}); STATUSES.forEach(function(s){ var o = el("option", { value:s }, s); if(m.status === s) o.selected = true; stsel.appendChild(o); });
+    stsel.addEventListener("change", function(){ m.status = stsel.value; save(); render(); });
+    g.appendChild(el("label", { class:"wp-field" }, [ el("span", {}, "Status"), stsel ]));
+    g.appendChild(metaField("Email", "email", "text", "name@email.com"));
+    g.appendChild(metaField("Phone", "phone", "text", "+63\u2026"));
+    g.appendChild(metaField("Package / service tier", "pkg", "text", "e.g. Full coordination"));
+    g.appendChild(metaField("Contract fee (" + biz.currency + ")", "fee", "number", "0"));
+    card.appendChild(g);
+    var g2 = el("div", { class:"wp-grid cols-2" });
+    g2.appendChild(metaField("Amount paid (" + biz.currency + ")", "paid", "number", "0"));
+    var bal = Number(m.fee || 0) - Number(m.paid || 0);
+    var balBox = el("div", { class:"wp-field" });
+    balBox.appendChild(el("span", {}, "Balance due"));
+    balBox.appendChild(el("div", { style:{ fontFamily:"'Fraunces',Georgia,serif", fontSize:"22px", padding:"6px 0", color: bal > 0 ? "var(--rose-deep)" : "var(--sage)" } }, biz.currency + Number(bal).toLocaleString()));
+    g2.appendChild(balBox);
+    card.appendChild(g2);
+    var nf = metaField("Coordinator notes", "notes", "textarea", "Private notes about this client / event\u2026");
+    nf.style.marginBottom = "0";
+    card.appendChild(nf);
+    f.appendChild(card);
+    return f;
+  }
+
+  function exportPortfolio(){
+    try {
+      var blob = new Blob([JSON.stringify(biz, null, 2)], { type:"application/json" });
+      var url = URL.createObjectURL(blob); var a = document.createElement("a");
+      a.href = url; a.download = (biz.name || "coordination").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-portfolio.json";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      ioMsg = { ok:true, text:"Whole portfolio exported \u2014 that's your business backup." };
+      markExported();
+    } catch(e){ ioMsg = { ok:false, text:"Couldn't export the portfolio." }; }
+    render();
+  }
+  function importPortfolio(file){
+    if(!file) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try {
+        var obj = JSON.parse(r.result);
+        if(!obj || !Array.isArray(obj.weddings)) throw new Error("shape");
+        if(!window.confirm("Import this portfolio? It replaces ALL weddings currently in this app.")) return;
+        biz = normalizeBiz(obj); appMode = "home"; biz.activeId = null; save(); markExported();
+        ioMsg = { ok:true, text:"Portfolio imported." };
+      } catch(e){ ioMsg = { ok:false, text:"That file isn't a portfolio export. Pick the ...-portfolio.json file." }; }
+      render();
+    };
+    r.onerror = function(){ ioMsg = { ok:false, text:"Couldn't read that file." }; render(); };
+    r.readAsText(file);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

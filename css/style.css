@@ -219,6 +219,8 @@ th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: u
 }
 .badge.admin { background: #f1e3c1; color: #8a6d1c; }
 .badge.user { background: #e2eee5; color: var(--ok); }
+.badge.couple { background: #f6e3e8; color: var(--rose-dark); }
+.badge.coordinator { background: #dfe7f2; color: #3e6390; }
 
 .done { text-decoration: line-through; color: var(--muted); }
 

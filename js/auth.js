@@ -45,12 +45,32 @@ export async function logout() {
 }
 
 /**
- * Guard for protected pages. Call this at the top of dashboard.html /
- * admin.html. Redirects to login if not authenticated, or if
- * authenticated but not in allowedUsers. Calls onReady(user, access)
- * once both checks pass. Set requireAdmin=true on admin.html.
+ * Given an access.role ("admin" | "couple" | "coordinator"), returns the
+ * page that account type should land on after login. Used by index.html
+ * (post-login redirect) and requireAuth (wrong-page redirect).
  */
-export function requireAuth(onReady, { requireAdmin = false } = {}) {
+export function homeForRole(role) {
+  if (role === "admin") return "admin.html";
+  if (role === "coordinator") return "coordinator.html";
+  if (role === "couple") return "couple.html";
+  return "index.html";
+}
+
+/**
+ * Guard for protected pages. Call this at the top of couple.html /
+ * coordinator.html / admin.html. Redirects to login if not authenticated,
+ * or if authenticated but not in allowedUsers. Calls onReady(user, access)
+ * once checks pass.
+ *
+ * Options:
+ *   - requireAdmin: true   -> only role "admin" may proceed (admin.html)
+ *   - allowedRoles: [...]  -> only these roles may proceed (couple.html
+ *                             passes ["couple"], coordinator.html passes
+ *                             ["coordinator"]). A signed-in user with the
+ *                             wrong role gets bounced to THEIR correct
+ *                             page instead of stuck on the wrong one.
+ */
+export function requireAuth(onReady, { requireAdmin = false, allowedRoles = null } = {}) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "index.html";
@@ -64,8 +84,11 @@ export function requireAuth(onReady, { requireAdmin = false } = {}) {
       return;
     }
     if (requireAdmin && access.role !== "admin") {
-      alert("Admin access only.");
-      window.location.href = "dashboard.html";
+      window.location.href = homeForRole(access.role);
+      return;
+    }
+    if (allowedRoles && !allowedRoles.includes(access.role)) {
+      window.location.href = homeForRole(access.role);
       return;
     }
     onReady(user, access);

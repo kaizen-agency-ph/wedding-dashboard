@@ -5,15 +5,20 @@ rules_version = '2';
 // ============================================================
 //
 // Model:
-//  - allowedUsers/{uid}  is the access-control gate. A signed-in
-//    Firebase Auth account grants NOTHING by itself — the app only
-//    lets someone into the dashboard if their UID has a doc here.
-//    Only existing admins can create/update/delete these docs, which
-//    is how "add a login" / "revoke access" is enforced server-side
-//    (not just hidden in the UI).
-//  - weddings/{uid}      holds each user's checklist/budget/guest
-//    data. Only that user (and only if still an allowed user) can
-//    read or write it.
+//  - allowedUsers/{uid}  is the access-control gate AND the account-
+//    type record. A signed-in Firebase Auth account grants NOTHING
+//    by itself — the app only lets someone in if their UID has a doc
+//    here, and the doc's `role` field ("couple" | "coordinator" |
+//    "admin") decides which page they land on. Only existing admins
+//    can create/update/delete these docs, which is how "add a login"
+//    / "revoke access" is enforced server-side (not just hidden in
+//    the UI).
+//
+// Note: couple.html and coordinator.html store the actual wedding
+// planning data (checklist, budget, guests, seating, etc.) in the
+// browser's localStorage, not in Firestore — so there's no per-user
+// data collection to protect here. Firestore's only job in this app
+// is the login gate above.
 // ============================================================
 
 service cloud.firestore {
@@ -31,18 +36,12 @@ service cloud.firestore {
     }
 
     match /allowedUsers/{userId} {
-      // Anyone signed in can read their OWN doc (to check their own access).
+      // Anyone signed in can read their OWN doc (to check their own access + role).
       allow get: if request.auth != null && request.auth.uid == userId;
       // Only admins can list everyone (for the admin panel table).
       allow list: if isAdmin();
       // Only admins can grant or revoke access.
       allow create, update, delete: if isAdmin();
-    }
-
-    match /weddings/{userId} {
-      allow read, write: if request.auth != null &&
-        request.auth.uid == userId &&
-        isAllowed();
     }
   }
 }

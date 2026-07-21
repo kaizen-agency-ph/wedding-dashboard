@@ -93,7 +93,7 @@ async function loadUsers() {
     const added = data.addedAt && data.addedAt.toDate ? data.addedAt.toDate().toLocaleDateString() : "—";
     tr.innerHTML = `
       <td>${escapeHtml(data.email || "")}</td>
-      <td><span class="badge ${data.role === "admin" ? "admin" : "user"}">${data.role}</span></td>
+      <td><span class="badge ${data.role}">${data.role}</span></td>
       <td>${added}</td>
       <td><button class="btn danger" data-id="${d.id}" data-action="revoke">Revoke</button></td>
     `;
