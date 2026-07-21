@@ -43,5 +43,12 @@ service cloud.firestore {
       // Only admins can grant or revoke access.
       allow create, update, delete: if isAdmin();
     }
+
+    // settings/pricing holds the per-role price (couple/coordinator) used to
+    // calculate revenue on the Admin Panel. Admin-only in both directions —
+    // regular couple/coordinator accounts never need to read this.
+    match /settings/{docId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

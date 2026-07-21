@@ -9,6 +9,7 @@ import {
   collection,
   getDocs,
   doc,
+  getDoc,
   setDoc,
   deleteDoc,
   serverTimestamp
@@ -84,6 +85,7 @@ document.getElementById("create-user").addEventListener("click", async () => {
 });
 
 let allUsers = []; // cached in-memory copy of allowedUsers, refreshed on load/create/revoke
+let pricing = null; // { couple, coordinator } in PHP, or null until set/loaded
 
 async function loadUsers() {
   const snap = await getDocs(collection(db, "allowedUsers"));
@@ -92,20 +94,86 @@ async function loadUsers() {
   renderTable();
 }
 
+async function loadPricing() {
+  const snap = await getDoc(doc(db, "settings", "pricing"));
+  pricing = snap.exists() ? snap.data() : null;
+  document.getElementById("price-couple").value = pricing && pricing.couple != null ? pricing.couple : "";
+  document.getElementById("price-coordinator").value = pricing && pricing.coordinator != null ? pricing.coordinator : "";
+  renderStats();
+}
+
+function peso(n) { return "₱" + Number(n || 0).toLocaleString(); }
+
 function renderStats() {
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const count = (role) => allUsers.filter((u) => u.role === role).length;
-  const addedThisWeek = allUsers.filter((u) => {
+  const isRecent = (u) => {
     const t = u.addedAt && u.addedAt.toDate ? u.addedAt.toDate().getTime() : null;
     return t != null && t >= weekAgo;
-  }).length;
+  };
+  const nCouples = count("couple");
+  const nCoordinators = count("coordinator");
+  const addedThisWeek = allUsers.filter(isRecent).length;
 
   document.getElementById("stat-total").textContent = allUsers.length;
-  document.getElementById("stat-couples").textContent = count("couple");
-  document.getElementById("stat-coordinators").textContent = count("coordinator");
+  document.getElementById("stat-couples").textContent = nCouples;
+  document.getElementById("stat-coordinators").textContent = nCoordinators;
   document.getElementById("stat-admins").textContent = count("admin");
   document.getElementById("stat-new").textContent = addedThisWeek;
+
+  const revEl = document.getElementById("stat-revenue");
+  const revWeekEl = document.getElementById("stat-revenue-week");
+  const revAvgEl = document.getElementById("stat-revenue-avg");
+
+  if (!pricing || (pricing.couple == null && pricing.coordinator == null)) {
+    revEl.textContent = "Set pricing";
+    revWeekEl.textContent = "—";
+    revAvgEl.textContent = "—";
+    return;
+  }
+
+  const cP = Number(pricing.couple) || 0;
+  const coP = Number(pricing.coordinator) || 0;
+  const total = nCouples * cP + nCoordinators * coP;
+  const payingAccounts = nCouples + nCoordinators;
+  const weekRevenue = allUsers.filter(isRecent).reduce((sum, u) => {
+    if (u.role === "couple") return sum + cP;
+    if (u.role === "coordinator") return sum + coP;
+    return sum;
+  }, 0);
+
+  revEl.textContent = peso(total);
+  revWeekEl.textContent = peso(weekRevenue);
+  revAvgEl.textContent = payingAccounts ? peso(total / payingAccounts) : "—";
 }
+
+document.getElementById("save-pricing").addEventListener("click", async () => {
+  const errorEl = document.getElementById("pricing-error");
+  errorEl.textContent = "";
+  const coupleVal = document.getElementById("price-couple").value;
+  const coordinatorVal = document.getElementById("price-coordinator").value;
+
+  if (coupleVal === "" && coordinatorVal === "") {
+    errorEl.textContent = "Enter at least one price.";
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, "settings", "pricing"), {
+      couple: coupleVal === "" ? null : Number(coupleVal),
+      coordinator: coordinatorVal === "" ? null : Number(coordinatorVal),
+      updatedAt: serverTimestamp(),
+      updatedBy: adminEmail
+    });
+    await loadPricing();
+    const tag = document.getElementById("pricing-saved");
+    tag.classList.add("show");
+    setTimeout(() => tag.classList.remove("show"), 1500);
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "Couldn't save pricing: " + err.message;
+  }
+});
 
 function renderTable() {
   const filter = document.getElementById("role-filter").value;
@@ -145,8 +213,9 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-requireAuth((user, access) => {
+requireAuth(async (user, access) => {
   adminEmail = access.email || user.email;
   document.getElementById("user-email").textContent = adminEmail;
-  loadUsers();
+  await loadPricing();
+  await loadUsers();
 }, { requireAdmin: true });
