@@ -11,8 +11,9 @@ import {
   doc,
   getDoc,
   setDoc,
-  deleteDoc,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -51,6 +52,16 @@ async function createSecondaryUser(email, password) {
   }
 }
 
+/** Finds an allowedUsers doc by email (docs are keyed by UID, not email,
+ * so this needs a query). Returns { id, ...data } or null. */
+async function findAllowedUserByEmail(email) {
+  const q = query(collection(db, "allowedUsers"), where("email", "==", email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
 document.getElementById("create-user").addEventListener("click", async () => {
   const email = document.getElementById("new-email").value.trim();
   const password = document.getElementById("new-password").value;
@@ -68,6 +79,7 @@ document.getElementById("create-user").addEventListener("click", async () => {
     await setDoc(doc(db, "allowedUsers", uid), {
       email,
       role,
+      active: true,
       addedAt: serverTimestamp(),
       addedBy: adminEmail
     });
@@ -77,7 +89,26 @@ document.getElementById("create-user").addEventListener("click", async () => {
   } catch (err) {
     console.error(err);
     if (err.code === "auth/email-already-in-use") {
-      errorEl.textContent = "That email already has a login. If they just need dashboard access restored, that's not supported yet in this build — recreate under a different email or extend this script.";
+      // The Firebase Auth login already exists. If it's a previously
+      // revoked account, restore it (reusing the same UID) instead of
+      // erroring out — this is the common "un-revoke" path.
+      const existing = await findAllowedUserByEmail(email);
+      if (existing && existing.active === false) {
+        await setDoc(doc(db, "allowedUsers", existing.id), {
+          email,
+          role,
+          active: true,
+          restoredAt: serverTimestamp(),
+          restoredBy: adminEmail
+        }, { merge: true });
+        document.getElementById("new-email").value = "";
+        document.getElementById("new-password").value = "";
+        await loadUsers();
+      } else if (existing) {
+        errorEl.textContent = "That email already has active dashboard access — no need to recreate it.";
+      } else {
+        errorEl.textContent = "That email already has a login, but no access record was found to restore (it was likely revoked before this update, using the old delete-based revoke). Find their UID in Firebase Console → Authentication → Users, then add it back manually under allowedUsers in Firestore — same steps as the original admin bootstrap.";
+      }
     } else {
       errorEl.textContent = "Couldn't create the account: " + err.message;
     }
@@ -113,17 +144,22 @@ async function loadPricing() {
 function peso(n) { return "₱" + Number(n || 0).toLocaleString(); }
 
 function renderStats() {
+  // Revoked accounts are excluded from every stat below (including the
+  // account-type counts) since they're no longer using or paying for
+  // the product. They still show up in the table further down so an
+  // admin can find and restore them.
+  const active = allUsers.filter((u) => u.active !== false);
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const count = (role) => allUsers.filter((u) => u.role === role).length;
+  const count = (role) => active.filter((u) => u.role === role).length;
   const isRecent = (u) => {
     const t = u.addedAt && u.addedAt.toDate ? u.addedAt.toDate().getTime() : null;
     return t != null && t >= weekAgo;
   };
   const nCouples = count("couple");
   const nCoordinators = count("coordinator");
-  const addedThisWeek = allUsers.filter(isRecent).length;
+  const addedThisWeek = active.filter(isRecent).length;
 
-  document.getElementById("stat-total").textContent = allUsers.length;
+  document.getElementById("stat-total").textContent = active.length;
   document.getElementById("stat-couples").textContent = nCouples;
   document.getElementById("stat-coordinators").textContent = nCoordinators;
   document.getElementById("stat-admins").textContent = count("admin");
@@ -144,7 +180,7 @@ function renderStats() {
   const coP = Number(pricing.coordinator) || 0;
   const total = nCouples * cP + nCoordinators * coP;
   const payingAccounts = nCouples + nCoordinators;
-  const weekRevenue = allUsers.filter(isRecent).reduce((sum, u) => {
+  const weekRevenue = active.filter(isRecent).reduce((sum, u) => {
     if (u.role === "couple") return sum + cP;
     if (u.role === "coordinator") return sum + coP;
     return sum;
@@ -190,24 +226,44 @@ function renderTable() {
   const body = document.getElementById("users-body");
   body.innerHTML = "";
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="4" class="hint" style="text-align:center;padding:20px 0">No accounts match this filter.</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="hint" style="text-align:center;padding:20px 0">No accounts match this filter.</td></tr>';
     return;
   }
   rows.forEach((data) => {
+    const revoked = data.active === false;
     const tr = document.createElement("tr");
+    if (revoked) tr.style.opacity = "0.55";
     const added = data.addedAt && data.addedAt.toDate ? data.addedAt.toDate().toLocaleDateString() : "—";
+    const actionBtn = revoked
+      ? `<button class="btn" data-id="${data.id}" data-action="restore">Restore</button>`
+      : `<button class="btn danger" data-id="${data.id}" data-action="revoke">Revoke</button>`;
     tr.innerHTML = `
       <td>${escapeHtml(data.email || "")}</td>
       <td><span class="badge ${data.role}">${data.role}</span></td>
+      <td>${revoked ? '<span class="badge" style="background:#f1e1e1;color:#8a6d6d">Revoked</span>' : '<span class="badge user">Active</span>'}</td>
       <td>${added}</td>
-      <td><button class="btn danger" data-id="${data.id}" data-action="revoke">Revoke</button></td>
+      <td>${actionBtn}</td>
     `;
     body.appendChild(tr);
   });
   body.querySelectorAll('[data-action="revoke"]').forEach((btn) => {
     btn.addEventListener("click", async () => {
-      if (!confirm("Revoke this person's dashboard access?")) return;
-      await deleteDoc(doc(db, "allowedUsers", btn.dataset.id));
+      if (!confirm("Revoke this person's dashboard access? You can restore it later without recreating the account.")) return;
+      await setDoc(doc(db, "allowedUsers", btn.dataset.id), {
+        active: false,
+        revokedAt: serverTimestamp(),
+        revokedBy: adminEmail
+      }, { merge: true });
+      await loadUsers();
+    });
+  });
+  body.querySelectorAll('[data-action="restore"]').forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      await setDoc(doc(db, "allowedUsers", btn.dataset.id), {
+        active: true,
+        restoredAt: serverTimestamp(),
+        restoredBy: adminEmail
+      }, { merge: true });
       await loadUsers();
     });
   });

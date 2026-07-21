@@ -24,13 +24,22 @@ export const db = getFirestore(app);
 
 /**
  * Looks up allowedUsers/{uid}. Returns the doc data ({email, role,
- * addedAt}) if the account has been granted access by an admin,
- * or null if not. This is the real access-control gate — having a
- * valid Firebase Auth login is NOT enough on its own.
+ * addedAt, active}) if the account has been granted access by an admin
+ * AND hasn't been revoked, or null otherwise. This is the real
+ * access-control gate — having a valid Firebase Auth login is NOT
+ * enough on its own.
+ *
+ * Revoking access sets active:false rather than deleting the doc (so
+ * the admin panel can restore it later without losing the role/history).
+ * `active` missing entirely is treated as active, for docs created
+ * before this field existed.
  */
 export async function checkAccess(user) {
   const snap = await getDoc(doc(db, "allowedUsers", user.uid));
-  return snap.exists() ? snap.data() : null;
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  if (data.active === false) return null;
+  return data;
 }
 
 /** Sign in with email/password. Throws on failure (bad credentials). */

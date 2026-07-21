@@ -72,9 +72,9 @@
           <option value="admin">Admins only</option>
         </select>
       </div>
-      <p class="hint">"Revoke" removes their dashboard access immediately. It does not delete their login credentials (that requires the Firebase Admin SDK, which this static-hosted build doesn't have) — so keep passwords private, and treat revoke as "locked out of the app," not "account destroyed."</p>
+      <p class="hint">"Revoke" blocks their dashboard access immediately but keeps the account on file, so you can "Restore" it later — same role, same login, no need to recreate anything. It does not delete their login credentials outright (that requires the Firebase Admin SDK, which this static-hosted build doesn't have), so keep passwords private regardless.</p>
       <table>
-        <thead><tr><th>Email</th><th>Role</th><th>Added</th><th></th></tr></thead>
+        <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
         <tbody id="users-body"></tbody>
       </table>
     </div>
