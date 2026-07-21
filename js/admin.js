@@ -95,8 +95,16 @@ async function loadUsers() {
 }
 
 async function loadPricing() {
-  const snap = await getDoc(doc(db, "settings", "pricing"));
-  pricing = snap.exists() ? snap.data() : null;
+  // Best-effort: if this fails (e.g. Firestore rules haven't been published
+  // yet with the settings/pricing match), don't let it block the rest of
+  // the page — just show "Set pricing" until it can load successfully.
+  try {
+    const snap = await getDoc(doc(db, "settings", "pricing"));
+    pricing = snap.exists() ? snap.data() : null;
+  } catch (err) {
+    console.error("Couldn't load pricing — check that firestore.rules includes the settings/{docId} match and has been published:", err);
+    pricing = null;
+  }
   document.getElementById("price-couple").value = pricing && pricing.couple != null ? pricing.couple : "";
   document.getElementById("price-coordinator").value = pricing && pricing.coordinator != null ? pricing.coordinator : "";
   renderStats();
@@ -216,6 +224,6 @@ function escapeHtml(str) {
 requireAuth(async (user, access) => {
   adminEmail = access.email || user.email;
   document.getElementById("user-email").textContent = adminEmail;
-  await loadPricing();
-  await loadUsers();
+  await loadUsers();   // critical — the account table must load regardless of pricing status
+  await loadPricing(); // best-effort — won't block the table above if it fails
 }, { requireAdmin: true });
