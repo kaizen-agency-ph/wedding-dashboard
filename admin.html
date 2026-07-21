@@ -10,12 +10,19 @@
   <div class="topbar">
     <div class="brand">Admin Panel<small id="user-email">loading…</small></div>
     <nav>
-      <a href="dashboard.html">Back to Dashboard</a>
       <a href="#" id="logout-link">Sign Out</a>
     </nav>
   </div>
 
   <div class="container">
+    <div class="summary-grid" id="stats-grid">
+      <div class="stat"><div class="label">Total accounts</div><div class="value" id="stat-total">—</div></div>
+      <div class="stat"><div class="label">Couples</div><div class="value" id="stat-couples">—</div></div>
+      <div class="stat"><div class="label">Coordinators</div><div class="value" id="stat-coordinators">—</div></div>
+      <div class="stat"><div class="label">Admins</div><div class="value" id="stat-admins">—</div></div>
+      <div class="stat"><div class="label">Added this week</div><div class="value" id="stat-new">—</div></div>
+    </div>
+
     <div class="card">
       <h3 style="margin-top:0">Add a new user</h3>
       <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — have them change the password after first login (there's no self-service reset page in this build).</p>
@@ -33,7 +40,15 @@
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0">People with access</h3>
+      <div class="row" style="justify-content:space-between;margin-bottom:0">
+        <h3 style="margin:0">People with access</h3>
+        <select id="role-filter" style="max-width:160px;margin-bottom:0">
+          <option value="">All roles</option>
+          <option value="couple">Couples only</option>
+          <option value="coordinator">Coordinators only</option>
+          <option value="admin">Admins only</option>
+        </select>
+      </div>
       <p class="hint">"Revoke" removes their dashboard access immediately. It does not delete their login credentials (that requires the Firebase Admin SDK, which this static-hosted build doesn't have) — so keep passwords private, and treat revoke as "locked out of the app," not "account destroyed."</p>
       <table>
         <thead><tr><th>Email</th><th>Role</th><th>Added</th><th></th></tr></thead>

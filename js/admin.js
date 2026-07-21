@@ -83,19 +83,48 @@ document.getElementById("create-user").addEventListener("click", async () => {
   }
 });
 
+let allUsers = []; // cached in-memory copy of allowedUsers, refreshed on load/create/revoke
+
 async function loadUsers() {
+  const snap = await getDocs(collection(db, "allowedUsers"));
+  allUsers = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  renderStats();
+  renderTable();
+}
+
+function renderStats() {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const count = (role) => allUsers.filter((u) => u.role === role).length;
+  const addedThisWeek = allUsers.filter((u) => {
+    const t = u.addedAt && u.addedAt.toDate ? u.addedAt.toDate().getTime() : null;
+    return t != null && t >= weekAgo;
+  }).length;
+
+  document.getElementById("stat-total").textContent = allUsers.length;
+  document.getElementById("stat-couples").textContent = count("couple");
+  document.getElementById("stat-coordinators").textContent = count("coordinator");
+  document.getElementById("stat-admins").textContent = count("admin");
+  document.getElementById("stat-new").textContent = addedThisWeek;
+}
+
+function renderTable() {
+  const filter = document.getElementById("role-filter").value;
+  const rows = filter ? allUsers.filter((u) => u.role === filter) : allUsers;
+
   const body = document.getElementById("users-body");
   body.innerHTML = "";
-  const snap = await getDocs(collection(db, "allowedUsers"));
-  snap.forEach((d) => {
-    const data = d.data();
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="4" class="hint" style="text-align:center;padding:20px 0">No accounts match this filter.</td></tr>';
+    return;
+  }
+  rows.forEach((data) => {
     const tr = document.createElement("tr");
     const added = data.addedAt && data.addedAt.toDate ? data.addedAt.toDate().toLocaleDateString() : "—";
     tr.innerHTML = `
       <td>${escapeHtml(data.email || "")}</td>
       <td><span class="badge ${data.role}">${data.role}</span></td>
       <td>${added}</td>
-      <td><button class="btn danger" data-id="${d.id}" data-action="revoke">Revoke</button></td>
+      <td><button class="btn danger" data-id="${data.id}" data-action="revoke">Revoke</button></td>
     `;
     body.appendChild(tr);
   });
@@ -107,6 +136,8 @@ async function loadUsers() {
     });
   });
 }
+
+document.getElementById("role-filter").addEventListener("change", renderTable);
 
 function escapeHtml(str) {
   const div = document.createElement("div");
