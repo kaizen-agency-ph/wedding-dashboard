@@ -409,6 +409,15 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 (function(){
   "use strict";
 
+  // Origin lock (deterrent): stop the planner running from a saved copy on
+  // disk or a re-hosted domain. Client code is always copyable, but this
+  // blocks the easy paths. Add your custom domain here if you set one up.
+  var ALLOWED_HOSTS = ["kaizen-agency-ph.github.io", "localhost", "127.0.0.1"];
+  if(ALLOWED_HOSTS.indexOf(location.hostname) === -1){
+    document.documentElement.innerHTML = "<div style='font-family:sans-serif;padding:48px;text-align:center;color:#8C4F66'>This app can only run from its official website.</div>";
+    return;
+  }
+
   /* ---------- constants & helpers ---------- */
   var KEY = "wedding-plan-v1";
   var STAGES = ["todo", "doing", "done"];
