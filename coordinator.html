@@ -982,21 +982,63 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     return f;
   }
 
+  // Remembers, per session, which file the user chose for each export target,
+  // so repeat exports overwrite that same file instead of downloading copies.
+  var fileHandles = {};
+  function downloadFallback(filename, dataStr){
+    var blob = new Blob([dataStr], { type:"application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function saveJSON(filename, dataStr, handleKey, cb){
+    // Chromium (Chrome/Edge): File System Access API writes to the SAME file
+    // each time \u2014 the user picks it once per session, later exports overwrite it.
+    if(window.showSaveFilePicker){
+      (async function(){
+        try {
+          var handle = fileHandles[handleKey];
+          if(!handle){
+            handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{ description: "Wedding plan", accept: { "application/json": [".json"] } }]
+            });
+            fileHandles[handleKey] = handle;
+          }
+          if(handle.queryPermission){
+            var perm = await handle.queryPermission({ mode: "readwrite" });
+            if(perm !== "granted") perm = await handle.requestPermission({ mode: "readwrite" });
+            if(perm !== "granted"){ fileHandles[handleKey] = null; cb(false); return; }
+          }
+          var w = await handle.createWritable();
+          await w.write(dataStr);
+          await w.close();
+          cb(true);
+        } catch(e){
+          if(e && e.name === "AbortError"){ cb(false); return; } // user cancelled the save dialog
+          fileHandles[handleKey] = null;
+          downloadFallback(filename, dataStr); cb(true);
+        }
+      })();
+      return;
+    }
+    // Firefox/Safari fallback: a normal download (browser controls the filename).
+    downloadFallback(filename, dataStr); cb(true);
+  }
+
   function exportPlan(){
-    try {
-      var data = JSON.stringify(state, null, 2);
-      var blob = new Blob([data], { type:"application/json" });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      var names = [state.details.partner1, state.details.partner2].filter(Boolean);
-      var tag = names.length ? names.join("-and-").replace(/\s+/g, "") : "plan";
-      a.href = url; a.download = "wedding-" + tag.toLowerCase() + ".json";
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      ioMsg = { ok:true, text: COORD ? "This wedding exported as a single file you can share or import elsewhere." : "Plan exported. Keep the file safe \u2014 that's your backup." };
+    var data = JSON.stringify(state, null, 2);
+    var names = [state.details.partner1, state.details.partner2].filter(Boolean);
+    var tag = names.length ? names.join("-and-").replace(/\s+/g, "") : "plan";
+    var filename = "wedding-" + tag.toLowerCase() + ".json";
+    saveJSON(filename, data, COORD ? ("wedding-" + (active() ? active().id : "x")) : "couple", function(done){
+      if(!done) return;
+      ioMsg = { ok:true, text: COORD ? "This wedding exported \u2014 saved over your previous file." : "Plan exported \u2014 saved over your previous backup file." };
       if(!COORD) markExported();
-    } catch(e){ ioMsg = { ok:false, text:"Couldn't create the export file. Try again." }; }
-    render();
+      render();
+    });
   }
 
   /* ---- backup tracking ---- */
@@ -2228,15 +2270,13 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   }
 
   function exportPortfolio(){
-    try {
-      var blob = new Blob([JSON.stringify(biz, null, 2)], { type:"application/json" });
-      var url = URL.createObjectURL(blob); var a = document.createElement("a");
-      a.href = url; a.download = (biz.name || "coordination").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-portfolio.json";
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      ioMsg = { ok:true, text:"Whole portfolio exported \u2014 that's your business backup." };
+    var filename = (biz.name || "coordination").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-portfolio.json";
+    saveJSON(filename, JSON.stringify(biz, null, 2), "portfolio", function(done){
+      if(!done) return;
+      ioMsg = { ok:true, text:"Whole portfolio exported \u2014 saved over your previous backup file." };
       markExported();
-    } catch(e){ ioMsg = { ok:false, text:"Couldn't export the portfolio." }; }
-    render();
+      render();
+    });
   }
   function importPortfolio(file){
     if(!file) return;
