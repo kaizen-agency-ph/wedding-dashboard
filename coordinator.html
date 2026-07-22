@@ -305,6 +305,40 @@
 .wp-pickrow:hover{ border-color:var(--rose); background:var(--rose-soft); }
 .wp-pickrow.on{ background:var(--sage-soft); border-color:var(--sage); font-weight:600; }
 
+/* Seating full-screen editor */
+.wp-fs{ position:fixed; inset:0; z-index:30; background:var(--paper); display:flex; }
+.wp-fs-panel{ width:310px; flex:none; background:var(--card); border-right:1px solid var(--line); display:flex; flex-direction:column; transition:width .18s ease; }
+.wp-fs-panel.collapsed{ width:0; border-right:none; overflow:hidden; }
+.wp-fs-phead{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--line); flex:none; }
+.wp-fs-ptitle{ font-family:'Fraunces',Georgia,serif; font-size:19px; color:var(--ink); }
+.wp-fs-collapse{ font:inherit; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink-soft); width:30px; height:30px; border-radius:9px; font-size:15px; line-height:1; }
+.wp-fs-collapse:hover{ border-color:var(--rose); color:var(--rose-deep); }
+.wp-fs-pscroll{ padding:16px 18px 28px; overflow-y:auto; flex:1; }
+.wp-fs-sep{ height:1px; background:var(--line); margin:18px 0; }
+.wp-fs-expand{ position:absolute; top:14px; left:14px; z-index:2; font:inherit; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--rose-deep); padding:9px 14px; border-radius:999px; box-shadow:0 2px 8px rgba(58,46,63,.12); display:none; }
+.wp-fs-panel.collapsed ~ .wp-fs-expand{ display:block; }
+.wp-fs-stage{ flex:1; min-width:0; display:flex; flex-direction:column; padding:14px 16px 16px; overflow:hidden; }
+.wp-fs-topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; flex:none; }
+.wp-fs-topbar .wp-zoombar{ margin-bottom:0; }
+.wp-boardwrap-fs{ flex:1; max-height:none; }
+@media (max-width:640px){ .wp-fs-panel{ width:250px; } .wp-fs-panel.collapsed{ width:0; } }
+.wp-inspo{ gap:8px; }
+.wp-inspo .wp-thumb, .wp-inspo .wp-addimg{ width:88px; height:88px; }
+.wp-inspo .wp-addimg{ font-size:26px; }
+
+/* Floating export button + reminder bubble */
+.wp-fab{ position:fixed; right:20px; bottom:20px; z-index:35; display:flex; flex-direction:column; align-items:flex-end; gap:10px; font-family:'Outfit',system-ui,sans-serif; min-height:0; max-width:300px;
+  --rose:#A8657C; --rose-deep:#8C4F66; --rose-soft:#F5E7EC; --gold:#B8902F; --card:#FFFFFF; --line:#EBDDD8; --ink:#3A2E3F; --ink-soft:#7A6B79; }
+.wp-fab-btn{ position:relative; font:inherit; font-weight:600; font-size:14px; cursor:pointer; border:none; background:var(--rose-deep); color:#fff; padding:13px 20px; border-radius:999px; box-shadow:0 6px 20px rgba(140,79,102,.4); display:flex; align-items:center; gap:6px; }
+.wp-fab-btn:hover{ filter:brightness(1.07); }
+.wp-fab-dot{ position:absolute; top:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background:var(--gold); border:2px solid #fff; }
+.wp-fab-bubble{ position:relative; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; max-width:280px; box-shadow:0 10px 34px rgba(58,46,63,.22); color:var(--ink); font-size:13px; animation:wp-fade .25s ease both; }
+.wp-fab-bubble-txt{ line-height:1.4; margin-bottom:10px; padding-right:16px; }
+.wp-fab-bubble-btns{ display:flex; gap:8px; }
+.wp-fab-bubble-btns .wp-btn{ padding:8px 13px; font-size:13px; }
+.wp-fab-bubble-x{ position:absolute; top:8px; right:10px; border:none; background:none; cursor:pointer; color:var(--ink-soft); font-size:16px; line-height:1; padding:0; }
+.wp-fab-bubble-x:hover{ color:var(--rose-deep); }
+
 /* Decor palette + props */
 .wp-decorpalette{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .wp-decorbtn{ font-size:13px; padding:8px 12px; }
@@ -408,7 +442,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
         {id:uid(),label:"Cake",chosenId:null,options:[]},
         {id:uid(),label:"Hair & makeup",chosenId:null,options:[]}
       ]},
-      seating: { guests: [], tables: [], props: [] }
+      seating: { guests: [], tables: [], props: [], boardW: 1000, boardH: 640, inspo: [] }
     };
   }
 
@@ -431,7 +465,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
           }) }
         : s.vendors,
       seating: (o.seating && Array.isArray(o.seating.guests) && Array.isArray(o.seating.tables))
-        ? { guests: o.seating.guests, tables: o.seating.tables.map(function(t){
+        ? { boardW: o.seating.boardW || 1000, boardH: o.seating.boardH || 640, inspo: Array.isArray(o.seating.inspo) ? o.seating.inspo : [], guests: o.seating.guests, tables: o.seating.tables.map(function(t){
             return { id:t.id||uid(), name:t.name||"", shape:t.shape||"round", rot: t.rot||0,
               x: t.x||20, y: t.y||20, seats:(t.seats||[]).map(function(se){ return { id:se.id||uid(), label:se.label||"", guestId:se.guestId||null }; }) };
           }), props: Array.isArray(o.seating.props) ? o.seating.props.map(function(pr){
@@ -464,6 +498,20 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function save(){
     try { localStorage.setItem(BIZ_KEY, JSON.stringify(biz)); saveError = false; }
     catch(e){ saveError = true; updateFoot(); }
+    onAfterSave();
+  }
+  var changesSinceExport = 0, CHANGE_THRESHOLD = 25, bubbleSnoozeUntil = 0;
+  function onAfterSave(){
+    if(typeof refreshExportFab === "function") refreshExportFab();
+    if(typeof hasUnsaved !== "function") return;
+    if(hasUnsaved() && planHasContent()){
+      changesSinceExport = (changesSinceExport | 0) + 1;
+      if(changesSinceExport >= CHANGE_THRESHOLD && Date.now() >= (bubbleSnoozeUntil || 0)){
+        showBubble("💾 You've made a lot of changes — export " + (COORD ? "your book" : "your plan") + " so you don't lose them.");
+      }
+    } else if(!hasUnsaved()){
+      changesSinceExport = 0;
+    }
   }
 
   var biz = loadBiz();
@@ -535,18 +583,19 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function lum(hex){ var c = hexToRgb(hex).map(function(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); }); return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]; }
   function adjustReadable(hex, maxLum){ var c = hex, g = 0; while(lum(c) > maxLum && g < 16){ c = mix(c, "#000000", 0.1); g++; } return c; }
   function normalizeHex(s){ s = (s||"").trim().replace(/^#/,""); if(/^[0-9a-fA-F]{3}$/.test(s)) s = s.split("").map(function(c){return c+c;}).join(""); if(/^[0-9a-fA-F]{6}$/.test(s)) return "#" + s.toLowerCase(); return null; }
-  function setTheme(){
-    if(!app) return;
+  function applyThemeTo(node){
+    if(!node) return;
     var p = state.details.themePrimary || "#A8657C";
     var s = state.details.themeSecondary || "#6F8676";
     var a = state.details.themeAccent || "#B8902F";
-    app.style.setProperty("--rose", adjustReadable(p, 0.5));
-    app.style.setProperty("--rose-deep", adjustReadable(p, 0.3));
-    app.style.setProperty("--rose-soft", mix(p, "#ffffff", 0.86));
-    app.style.setProperty("--sage", adjustReadable(s, 0.5));
-    app.style.setProperty("--sage-soft", mix(s, "#ffffff", 0.85));
-    app.style.setProperty("--gold", adjustReadable(a, 0.55));
+    node.style.setProperty("--rose", adjustReadable(p, 0.5));
+    node.style.setProperty("--rose-deep", adjustReadable(p, 0.3));
+    node.style.setProperty("--rose-soft", mix(p, "#ffffff", 0.86));
+    node.style.setProperty("--sage", adjustReadable(s, 0.5));
+    node.style.setProperty("--sage-soft", mix(s, "#ffffff", 0.85));
+    node.style.setProperty("--gold", adjustReadable(a, 0.55));
   }
+  function setTheme(){ if(app) applyThemeTo(app); }
 
   function sym(){ return state.details.currency || "₱"; }
   function num(v){ return (v === "" || v == null) ? 0 : (Number(v) || 0); }
@@ -574,6 +623,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   var ioMsg = null;
   var headBgImg = null;
   var seatZoom = 1;
+  var fsActive = false, fsPanelOpen = true;
 
   function header(){
     var names = [state.details.partner1, state.details.partner2].filter(Boolean);
@@ -964,7 +1014,9 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     lastExportSig = currentSig(); lastExportAt = Date.now();
     try { localStorage.setItem(EXP_KEY, JSON.stringify({ sig:lastExportSig, at:lastExportAt })); } catch(_){}
     reminderSnoozeUntil = Date.now() + REMIND_MS;
+    changesSinceExport = 0; bubbleSnoozeUntil = 0;
     hideReminder();
+    if(typeof refreshExportFab === "function") refreshExportFab();
   }
   function relTime(ts){
     if(!ts) return "never";
@@ -983,17 +1035,44 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       || state.budget.items.some(function(i){ return i.act || i.est; })
       || state.vendors.categories.some(function(c){ return c.chosenId; }));
   }
-  function showReminder(){
-    if(document.getElementById("wp-remind")) return;
-    var bar = el("div", { id:"wp-remind", class:"wp wp-remind" });
-    bar.appendChild(el("span", { class:"wp-remind-txt" }, "\ud83d\udcbe It's been a while since your last backup \u2014 export " + (COORD ? "your book" : "your plan") + " to keep it safe."));
-    var btns = el("div", { class:"wp-remind-btns" });
-    btns.appendChild(el("button", { class:"wp-btn", onClick:function(){ if(COORD) exportPortfolio(); else exportPlan(); } }, "Export now"));
-    btns.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ reminderSnoozeUntil = Date.now() + REMIND_MS; hideReminder(); } }, "Later"));
-    bar.appendChild(btns);
-    document.body.appendChild(bar);
+  function fabExport(){ if(COORD) exportPortfolio(); else exportPlan(); }
+  function ensureExportFab(){
+    var fab = document.getElementById("wp-fab");
+    if(!fab){
+      fab = el("div", { id:"wp-fab", class:"wp-fab" });
+      fab.appendChild(el("div", { id:"wp-fab-bubble", class:"wp-fab-bubble", style:{ display:"none" } }));
+      var btn = el("button", { class:"wp-fab-btn", title:"Export a backup of your book" }, [
+        el("span", {}, "\u2913 Export"),
+        el("span", { id:"wp-fab-dot", class:"wp-fab-dot", style:{ display:"none" } })
+      ]);
+      btn.addEventListener("click", fabExport);
+      fab.appendChild(btn);
+      document.body.appendChild(fab);
+    }
+    refreshExportFab();
   }
-  function hideReminder(){ var b = document.getElementById("wp-remind"); if(b) b.remove(); }
+  function refreshExportFab(){
+    var fab = document.getElementById("wp-fab"); if(!fab) return;
+    fab.style.display = planHasContent() ? "flex" : "none";
+    var dot = document.getElementById("wp-fab-dot"); if(dot) dot.style.display = hasUnsaved() ? "block" : "none";
+  }
+  function hideBubble(){ var b = document.getElementById("wp-fab-bubble"); if(b) b.style.display = "none"; }
+  function dismissBubble(){ reminderSnoozeUntil = Date.now() + REMIND_MS; bubbleSnoozeUntil = Date.now() + REMIND_MS; changesSinceExport = 0; hideBubble(); }
+  function showBubble(msg){
+    var bubble = document.getElementById("wp-fab-bubble");
+    if(!bubble){ ensureExportFab(); bubble = document.getElementById("wp-fab-bubble"); if(!bubble) return; }
+    if(bubble.style.display === "block") return;
+    bubble.innerHTML = "";
+    bubble.appendChild(el("div", { class:"wp-fab-bubble-txt" }, msg));
+    var row = el("div", { class:"wp-fab-bubble-btns" });
+    row.appendChild(el("button", { class:"wp-btn", onClick:fabExport }, "Export now"));
+    row.appendChild(el("button", { class:"wp-btn ghost", onClick:dismissBubble }, "Later"));
+    bubble.appendChild(row);
+    bubble.appendChild(el("button", { class:"wp-fab-bubble-x", "aria-label":"Dismiss", onClick:dismissBubble }, "\u00d7"));
+    bubble.style.display = "block";
+  }
+  function showReminder(){ showBubble("\ud83d\udcbe It's been a while since your last backup \u2014 export " + (COORD ? "your book" : "your plan") + " to keep it safe."); }
+  function hideReminder(){ hideBubble(); }
   function maybeRemind(){
     if(!hasUnsaved() || !planHasContent()){ hideReminder(); return; }
     if(Date.now() >= reminderSnoozeUntil) showReminder();
@@ -1394,6 +1473,14 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function viewSeating(){
     var f = document.createDocumentFragment();
 
+    var fsBar = el("div", { class:"wp-card", style:{ marginBottom:"16px", display:"flex", justifyContent:"space-between", alignItems:"center", gap:"12px", flexWrap:"wrap" } });
+    var fsInfo = el("div", {});
+    fsInfo.appendChild(el("div", { class:"eyebrow" }, "Seating & floor plan"));
+    fsInfo.appendChild(el("div", { style:{ fontSize:"13px", color:"var(--ink-soft)", marginTop:"4px" } }, "Arrange tables, guests and decor. Open the full-screen editor for more room, with the tools floating on the left."));
+    fsBar.appendChild(fsInfo);
+    fsBar.appendChild(el("button", { class:"wp-btn", onClick:openSeatingFullscreen }, "⤢ Full screen"));
+    f.appendChild(fsBar);
+
     var gCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
     gCard.appendChild(el("div", { class:"eyebrow" }, "Guests"));
     var addRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap" } });
@@ -1451,6 +1538,11 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     dCard.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Drag any piece to move it, drag its bottom-right corner to resize, and tap \u270e to rename it. Use Aisle and Stage to lay out the ceremony."));
     f.appendChild(dCard);
 
+    var iCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    iCard.appendChild(el("div", { class:"eyebrow" }, "Inspiration board"));
+    iCard.appendChild(sBuildInspo());
+    f.appendChild(iCard);
+
     var wrapEl = el("div", { class:"wp-boardwrap" });
     var sizer = el("div", { class:"wp-boardsizer" });
     var boardEl = el("div", { class:"wp-seatboard" });
@@ -1480,6 +1572,200 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     f.appendChild(wrapEl);
     applyZoom();
     return f;
+  }
+
+  function sBuildGuests(){
+    var box = el("div", {});
+    var addRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap" } });
+    var gin = el("input", { placeholder:"Guest name", style:{ maxWidth:"260px" } });
+    function addGuest(){ var v = gin.value.trim(); if(!v) return; state.seating.guests.push({ id:uid(), name:v }); save(); render(); }
+    gin.addEventListener("keydown", function(e){ if(e.key === "Enter") addGuest(); });
+    addRow.appendChild(gin);
+    addRow.appendChild(el("button", { class:"wp-btn", onClick:addGuest }, "Add guest"));
+    box.appendChild(addRow);
+
+    var seated = seatedGuestIds();
+    var seatedCount = state.seating.guests.filter(function(g){ return seated[g.id]; }).length;
+    if(state.seating.guests.length){
+      var chips = el("div", { class:"wp-guestlist" });
+      state.seating.guests.forEach(function(g){
+        var loc = seatLocation(g.id);
+        var chip = el("div", { class:"wp-guestchip" + (loc ? " seated" : "") });
+        chip.appendChild(el("span", { class:"wp-gname" }, g.name));
+        chip.appendChild(el("span", { class:"wp-gloc" }, loc ? loc : "unseated"));
+        chip.appendChild(el("button", { class:"wp-gx", "aria-label":"Remove guest", onClick:function(){
+          state.seating.guests = state.seating.guests.filter(function(x){ return x.id !== g.id; });
+          state.seating.tables.forEach(function(t){ t.seats.forEach(function(s){ if(s.guestId === g.id) s.guestId = null; }); });
+          save(); render();
+        } }, "×"));
+        chips.appendChild(chip);
+      });
+      box.appendChild(chips);
+      box.appendChild(el("div", { style:{ fontSize:"12px", color:"var(--ink-soft)", marginTop:"10px" } }, seatedCount + " of " + state.seating.guests.length + " seated"));
+    } else {
+      box.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"12px" } }, "Add your guests, then drop a table and tap a seat to place them."));
+    }
+    return box;
+  }
+
+  function sBuildTables(){
+    var box = el("div", {});
+    var crow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap", alignItems:"center" } });
+    var seatSel = el("select", { style:{ maxWidth:"130px" } });
+    [2,4,6,8,10,12].forEach(function(n){ var o = el("option", { value:String(n) }, n + " seats"); if(n === 8) o.selected = true; seatSel.appendChild(o); });
+    crow.appendChild(seatSel);
+    crow.appendChild(el("button", { class:"wp-btn", onClick:function(){ addTable("round", Number(seatSel.value)); } }, "+ Round table"));
+    crow.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ addTable("rect", Number(seatSel.value)); } }, "+ Long table"));
+    box.appendChild(crow);
+    box.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Drag a table by its ⬎ handle to move it. Tap a seat to assign a guest or give it a name."));
+    return box;
+  }
+
+  function sBuildDecor(){
+    var box = el("div", {});
+    var dRow = el("div", { class:"wp-decorpalette" });
+    ["stage","aisle","dance","arch","entrance","bar","buffet","cake","gifts","dj","restroom","plant","furniture","text"].forEach(function(type){
+      var pr = PROP_PRESETS[type];
+      dRow.appendChild(el("button", { class:"wp-btn ghost wp-decorbtn", onClick:function(){ addProp(type); } },
+        (pr.emoji ? pr.emoji + " " : "") + pr.label));
+    });
+    box.appendChild(dRow);
+    box.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 0 0" } }, "Drag any piece to move it, drag its bottom-right corner to resize, and tap ✎ to rename it."));
+    return box;
+  }
+
+  function sBuildInspo(){
+    var box = el("div", {});
+    box.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"10px 0 4px" } }, "Save layout ideas, table settings or décor you love, and keep them beside the canvas as you plan. Tap a photo to enlarge."));
+    var cap = 16;
+    var arr = Array.isArray(state.seating.inspo) ? state.seating.inspo : (state.seating.inspo = []);
+    var g = el("div", { class:"wp-gal wp-inspo" });
+    arr.forEach(function(src, ix){
+      var th = el("div", { class:"wp-thumb" });
+      th.appendChild(el("img", { src:src, alt:"", onClick:function(){ openLightbox(src); } }));
+      th.appendChild(el("button", { class:"wp-thumb-x", "aria-label":"Remove image", onClick:function(){ arr.splice(ix, 1); save(); render(); } }, "×"));
+      g.appendChild(th);
+    });
+    if(arr.length < cap){
+      var lab = el("label", { class:"wp-addimg", title:"Add inspiration" }, el("span", {}, "+"));
+      var inp = el("input", { type:"file", accept:"image/*", multiple:true, style:{ display:"none" } });
+      inp.addEventListener("change", function(e){
+        var files = Array.prototype.slice.call(e.target.files || []).filter(function(file){ return file.type.indexOf("image/") === 0; });
+        files = files.slice(0, Math.max(0, cap - arr.length));
+        e.target.value = "";
+        if(!files.length) return;
+        lab.classList.add("busy"); lab.firstChild.textContent = "…";
+        var urls = [], chain = Promise.resolve();
+        files.forEach(function(file){ chain = chain.then(function(){ return compressImage(file).then(function(u){ urls.push(u); }, function(){}); }); });
+        chain.then(function(){ if(urls.length){ state.seating.inspo = arr.concat(urls); save(); render(); } });
+      });
+      lab.appendChild(inp);
+      g.appendChild(lab);
+    }
+    box.appendChild(g);
+    return box;
+  }
+
+  function sBuildCanvas(opts){
+    opts = opts || {};
+    function bw(){ return Math.max(600, Math.min(6000, state.seating.boardW || 1000)); }
+    function bh(){ return Math.max(400, Math.min(4000, state.seating.boardH || 640)); }
+    var wrapEl = el("div", { class:"wp-boardwrap" + (opts.fill ? " wp-boardwrap-fs" : "") });
+    var sizer = el("div", { class:"wp-boardsizer" });
+    var boardEl = el("div", { class:"wp-seatboard" });
+    boardEl.style.width = bw() + "px"; boardEl.style.height = bh() + "px";
+    state.seating.props.forEach(function(pr){ boardEl.appendChild(renderProp(pr, boardEl)); });
+    state.seating.tables.forEach(function(t){ boardEl.appendChild(renderTable(t, boardEl)); });
+    if(state.seating.tables.length === 0 && state.seating.props.length === 0){
+      boardEl.appendChild(el("div", { class:"wp-boardhint" }, "Your seating canvas — add a table or decor to begin."));
+    }
+    sizer.appendChild(boardEl);
+    wrapEl.appendChild(sizer);
+
+    var zlabel;
+    function applyZoom(){
+      boardEl.style.width = bw() + "px"; boardEl.style.height = bh() + "px";
+      boardEl.style.transform = "scale(" + seatZoom + ")";
+      sizer.style.width = (bw() * seatZoom) + "px";
+      sizer.style.height = (bh() * seatZoom) + "px";
+      if(zlabel) zlabel.textContent = Math.round(seatZoom * 100) + "%";
+    }
+    function grow(dw, dh){
+      state.seating.boardW = Math.max(600, Math.min(6000, bw() + dw));
+      state.seating.boardH = Math.max(400, Math.min(4000, bh() + dh));
+      save(); applyZoom();
+    }
+    // Auto-expand the board so it at least fills the visible area (never shrinks below content).
+    function fit(){
+      var availW = Math.floor((wrapEl.clientWidth - 6) / seatZoom);
+      var availH = Math.floor((wrapEl.clientHeight - 6) / seatZoom);
+      var nw = Math.min(6000, Math.max(bw(), availW));
+      var nh = Math.min(4000, Math.max(bh(), availH));
+      if(nw > bw() || nh > bh()){ state.seating.boardW = nw; state.seating.boardH = nh; save(); applyZoom(); }
+    }
+    var zoomBar = el("div", { class:"wp-zoombar" });
+    zoomBar.appendChild(el("span", { class:"wp-zttl" }, "Zoom"));
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Zoom out", onClick:function(){ seatZoom = Math.max(0.4, Math.round((seatZoom - 0.1) * 20) / 20); applyZoom(); } }, "−"));
+    zlabel = el("span", { class:"wp-zval" }, Math.round(seatZoom * 100) + "%");
+    zoomBar.appendChild(zlabel);
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Zoom in", onClick:function(){ seatZoom = Math.min(2, Math.round((seatZoom + 0.1) * 20) / 20); applyZoom(); } }, "+"));
+    zoomBar.appendChild(el("span", { class:"wp-zttl", style:{ marginLeft:"12px" } }, "Canvas"));
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Wider canvas", title:"Wider", onClick:function(){ grow(400, 0); } }, "↔"));
+    zoomBar.appendChild(el("button", { class:"wp-zbtn", "aria-label":"Taller canvas", title:"Taller", onClick:function(){ grow(0, 300); } }, "↕"));
+    zoomBar.appendChild(el("button", { class:"wp-btn ghost wp-zreset", onClick:function(){ seatZoom = 1; state.seating.boardW = 1000; state.seating.boardH = 640; save(); applyZoom(); } }, "Reset"));
+    return { zoomBar:zoomBar, wrapEl:wrapEl, applyZoom:applyZoom, boardEl:boardEl, fit:fit };
+  }
+
+  function fsEsc(e){ if(e.key === "Escape") closeSeatingFullscreen(); }
+  function openSeatingFullscreen(){ fsActive = true; document.addEventListener("keydown", fsEsc); renderFullscreen(); }
+  function closeSeatingFullscreen(){
+    fsActive = false;
+    document.removeEventListener("keydown", fsEsc);
+    var ov = document.getElementById("wp-fs"); if(ov) ov.remove();
+    document.body.style.overflow = "";
+  }
+  function renderFullscreen(){
+    var old = document.getElementById("wp-fs"); if(old) old.remove();
+    if(!fsActive) return;
+    document.body.style.overflow = "hidden";
+
+    var ov = el("div", { class:"wp wp-fs", id:"wp-fs" });
+    applyThemeTo(ov);
+
+    var panel = el("div", { class:"wp-fs-panel" + (fsPanelOpen ? "" : " collapsed") });
+    var phead = el("div", { class:"wp-fs-phead" });
+    phead.appendChild(el("div", { class:"wp-fs-ptitle" }, "Seating tools"));
+    phead.appendChild(el("button", { class:"wp-fs-collapse", "aria-label":"Collapse tools", title:"Collapse", onClick:function(){ fsPanelOpen = false; renderFullscreen(); } }, "«"));
+    panel.appendChild(phead);
+    var pscroll = el("div", { class:"wp-fs-pscroll" });
+    pscroll.appendChild(el("div", { class:"eyebrow" }, "Guests"));
+    pscroll.appendChild(sBuildGuests());
+    pscroll.appendChild(el("div", { class:"wp-fs-sep" }));
+    pscroll.appendChild(el("div", { class:"eyebrow" }, "Add a table"));
+    pscroll.appendChild(sBuildTables());
+    pscroll.appendChild(el("div", { class:"wp-fs-sep" }));
+    pscroll.appendChild(el("div", { class:"eyebrow" }, "Add decor & layout"));
+    pscroll.appendChild(sBuildDecor());
+    pscroll.appendChild(el("div", { class:"wp-fs-sep" }));
+    pscroll.appendChild(el("div", { class:"eyebrow" }, "Inspiration board"));
+    pscroll.appendChild(sBuildInspo());
+    panel.appendChild(pscroll);
+    ov.appendChild(panel);
+
+    ov.appendChild(el("button", { class:"wp-fs-expand", "aria-label":"Show tools", onClick:function(){ fsPanelOpen = true; renderFullscreen(); } }, "» Tools"));
+
+    var stage = el("div", { class:"wp-fs-stage" });
+    var topbar = el("div", { class:"wp-fs-topbar" });
+    var canvas = sBuildCanvas({ fill:true });
+    topbar.appendChild(canvas.zoomBar);
+    topbar.appendChild(el("button", { class:"wp-btn", onClick:closeSeatingFullscreen }, "✕ Exit full screen"));
+    stage.appendChild(topbar);
+    stage.appendChild(canvas.wrapEl);
+    ov.appendChild(stage);
+
+    document.body.appendChild(ov);
+    canvas.applyZoom();
+    requestAnimationFrame(function(){ canvas.fit(); });
   }
 
   function addTable(shape, seatCount){
@@ -1754,6 +2040,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
   function render(){
     closeOverlaysKeepModal();
+    ensureExportFab();
     if(COORD && (appMode === "home" || !active())){
       app.style.removeProperty("--rose"); app.style.removeProperty("--rose-deep"); app.style.removeProperty("--rose-soft");
       app.style.removeProperty("--sage"); app.style.removeProperty("--sage-soft"); app.style.removeProperty("--gold");
@@ -1778,6 +2065,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     wrap.appendChild(footer());
     app.innerHTML = "";
     app.appendChild(wrap);
+    if(fsActive){ if(tab === "seating") renderFullscreen(); else closeSeatingFullscreen(); }
   }
   function closeOverlaysKeepModal(){ /* overlays live on body; render only rebuilds #app, so nothing to do */ }
 
