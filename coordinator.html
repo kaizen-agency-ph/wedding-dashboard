@@ -321,7 +321,11 @@
 .wp-fs-topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; flex:none; }
 .wp-fs-topbar .wp-zoombar{ margin-bottom:0; }
 .wp-boardwrap-fs{ flex:1; max-height:none; }
-@media (max-width:640px){ .wp-fs-panel{ width:250px; } .wp-fs-panel.collapsed{ width:0; } }
+@media (max-width:640px){
+  .wp-fs-panel{ position:absolute; top:0; left:0; bottom:0; width:280px; max-width:86vw; z-index:4; box-shadow:2px 0 18px rgba(58,46,63,.22); }
+  .wp-fs-panel.collapsed{ width:0; box-shadow:none; }
+  .wp-fs-stage{ padding:12px; }
+}
 .wp-inspo{ gap:8px; }
 .wp-inspo .wp-thumb, .wp-inspo .wp-addimg{ width:88px; height:88px; }
 .wp-inspo .wp-addimg{ font-size:26px; }
